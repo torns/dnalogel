@@ -1,0 +1,17 @@
+{
+  "name": "root",
+  "private": true,
+  "devDependencies": {
+    "lerna": "^4.0.0"
+  },
+  "workspaces": [
+    "plugins",
+    "examples"
+  ],
+  "scripts": {
+    "bootstrap": "lerna bootstrap && lerna link",
+    "start": "yarn build:dnalogel && yarn start:examples",
+    "build:dnalogel": "lerna run build:dnalogel --no-private",
+    "start:examples": "yarn workspace examples start:examples"
+  }
+}

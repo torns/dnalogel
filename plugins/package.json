@@ -4,7 +4,7 @@
   "main": "libs/main.js",
   "license": "MIT",
   "scripts": {
-    "build:dnalogel": "webpack --watch --progress --config webpack.config.js"
+    "build:plugins": "webpack --watch --progress"
   },
   "devDependencies": {
     "@realsee/five": "^5.0.0-alpha.95",

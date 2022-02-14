@@ -24,7 +24,7 @@ eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpac
   \******************/
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
-eval("\nexports.__esModule = true;\nexports.A = exports.ModelViewPlugin = void 0;\nvar ModelViewPlugin_1 = __webpack_require__(/*! ./resources/ModelViewPlugin */ \"./resources/ModelViewPlugin/index.tsx\");\nexports.ModelViewPlugin = ModelViewPlugin_1[\"default\"];\nfunction A() {\n    console.log(1111);\n    return 23;\n}\nexports.A = A;\n\n\n//# sourceURL=webpack://@realsee/dnalogel/./index.ts?");
+eval("\nexports.__esModule = true;\nexports.A = exports.ModelViewPlugin = void 0;\nvar ModelViewPlugin_1 = __webpack_require__(/*! ./resources/ModelViewPlugin */ \"./resources/ModelViewPlugin/index.tsx\");\nexports.ModelViewPlugin = ModelViewPlugin_1[\"default\"];\nfunction A() {\n    console.log(1111);\n    return 24;\n}\nexports.A = A;\n\n\n//# sourceURL=webpack://@realsee/dnalogel/./index.ts?");
 
 /***/ }),
 

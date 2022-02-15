@@ -1,5 +1,5 @@
 function A () {
-    return 55
+    return 66
 }
 
 import ModelViewPlugin from "./ModelViewPlugin";

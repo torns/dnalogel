@@ -1,0 +1,4 @@
+{
+  "entryPoints": ["resources/index.tsx"],
+  "out": "../docs"
+}

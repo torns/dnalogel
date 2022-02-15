@@ -16,3 +16,8 @@ yarn start:plugins
 ```bash
 yarn start:examples
 ```
+
+4、文档构建
+```bash
+yarn docs
+```

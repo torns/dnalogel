@@ -1,7 +1,7 @@
-function A () {
-    return 66
-}
 
-import ModelViewPlugin from "./ModelViewPlugin";
+export { default as ModelViewPlugin } from "./ModelViewPlugin";
 
-export { A, ModelViewPlugin }
+export { default as AutoPreloadPlugin } from "./AutoPreloadPlugin"
+
+export { default as CSS3DRenderPlugin } from "./CSS3DRenderPlugin"
+

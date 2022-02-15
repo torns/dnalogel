@@ -1,3 +1,204 @@
+import * as THREE from "three";
+import { Vector3 as Vector3$1, Scene as Scene$1 } from "three";
+const ModelViewPlugin = (five) => {
+  let needsRender = true;
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(60, 1, 0.1, 1e3);
+  let model = new THREE.Object3D();
+  {
+    const light = new THREE.DirectionalLight(16777215, 0.5);
+    light.position.copy(new THREE.Vector3(1, 1, 1));
+    scene.add(light);
+  }
+  {
+    const light = new THREE.DirectionalLight(16777215, 0.3);
+    scene.add(light);
+  }
+  {
+    const light = new THREE.AmbientLight(16777215, 0.3);
+    scene.add(light);
+  }
+  scene.add(model);
+  let renderer = null;
+  const initRendererIfNeeds = () => {
+    if (!five.renderer)
+      return;
+    if (!renderer) {
+      renderer = new THREE.WebGLRenderer({ antialias: false, alpha: true });
+      renderer.setPixelRatio(five.renderer.getPixelRatio());
+      renderer.outputEncoding = THREE.sRGBEncoding;
+      renderer.setClearColor(1579548, 0);
+      renderer.autoClear = true;
+    }
+    return renderer;
+  };
+  const modelWillLoad = () => {
+    model.traverse((object) => {
+      if (object instanceof THREE.Mesh) {
+        const materials = [].concat(object.material);
+        materials.forEach((material) => material.dispose());
+      }
+    });
+    scene.remove(model);
+    model = new THREE.Object3D();
+    scene.add(model);
+    update();
+  };
+  const modelLoaded = () => {
+    function cloneMaterial(material) {
+      material = material.clone();
+      material.uniforms.modelAlpha.value = 1;
+      if (material.uniforms.map.value) {
+        material.uniforms.map.value.needsUpdate = true;
+      }
+      return material;
+    }
+    function cloneModel(model2) {
+      if (model2 instanceof THREE.Mesh) {
+        const geometry = model2.geometry;
+        const material = Array.isArray(model2.material) ? model2.material.map(cloneMaterial) : cloneMaterial(model2.material);
+        return new THREE.Mesh(geometry, material);
+      } else if (model2 instanceof THREE.Group) {
+        const group = new THREE.Group();
+        model2.children.forEach((object) => group.add(cloneModel(object)));
+        return group;
+      } else {
+        const object3D = new THREE.Object3D();
+        model2.children.forEach((object) => object3D.add(cloneModel(object)));
+        return object3D;
+      }
+    }
+    scene.remove(model);
+    model = cloneModel(five.model);
+    scene.add(model);
+    update();
+  };
+  const appendTo = (element, size = {}) => {
+    const renderer2 = initRendererIfNeeds();
+    if (!renderer2)
+      return;
+    element.appendChild(renderer2.domElement);
+    refresh(size);
+    const positionType = window.getComputedStyle(element).position;
+    if (positionType !== "relative" && positionType !== "absolute" && positionType !== "fixed" && positionType !== "sticky")
+      element.style.position = "relative";
+  };
+  const refresh = (size = {}) => {
+    if (!renderer)
+      return;
+    const element = renderer.domElement;
+    const container = element.parentNode;
+    if (container && container.nodeName) {
+      const { width = container.offsetWidth, height = container.offsetHeight } = size;
+      renderer.setSize(width, height);
+      camera.aspect = width / height;
+      camera.updateProjectionMatrix();
+    }
+    needsRender = true;
+  };
+  const cameraDistance = () => {
+    const bounding = five.model.bounding;
+    const { fov: fov2, aspect: aspect2 } = camera;
+    const radius = Math.sqrt(Math.pow(bounding.max.x - bounding.min.x + 2, 2) + Math.pow(bounding.max.y - bounding.min.y + 2, 2) + Math.pow(bounding.max.z - bounding.min.z + 2, 2));
+    let distance = radius / 2 / Math.tan(Math.PI * fov2 / 360);
+    if (aspect2 < 1)
+      distance = distance / aspect2;
+    return isNaN(distance) ? radius : distance;
+  };
+  const update = () => {
+    const { longitude, latitude } = five.getPose();
+    const distance = cameraDistance();
+    const lookAt = five.model.bounding.getCenter(new THREE.Vector3());
+    const longitudeDistance = distance * Math.cos(latitude);
+    const cameraPosition = new THREE.Vector3();
+    cameraPosition.x = Math.sin(longitude) * longitudeDistance + lookAt.x;
+    cameraPosition.z = Math.cos(longitude) * longitudeDistance + lookAt.z;
+    cameraPosition.y = Math.sin(latitude) * distance + lookAt.y;
+    camera.position.copy(cameraPosition);
+    camera.lookAt(lookAt);
+    needsRender = true;
+  };
+  const render = () => {
+    if (needsRender !== true)
+      return;
+    if (!renderer)
+      return;
+    if (!renderer.domElement.parentNode)
+      return;
+    const parentNode = renderer.domElement.parentNode;
+    if (parentNode.offsetWidth === 0)
+      return;
+    renderer.render(scene, camera);
+    needsRender = false;
+  };
+  const dispose = () => {
+    if (renderer)
+      renderer.dispose();
+    renderer = null;
+  };
+  five.on("modelLoaded", modelLoaded);
+  five.on("modelWillLoad", modelWillLoad);
+  five.on("cameraDirectionUpdate", update);
+  five.on("dispose", dispose);
+  five.on("renderFrame", render);
+  return { appendTo, refresh };
+};
+function nextFrame(fn, delay = 0) {
+  if (delay <= 0)
+    requestAnimationFrame(fn);
+  else
+    requestAnimationFrame(() => nextFrame(fn, delay - 1));
+}
+const AutoPreloadPlugin = (five, parameters) => {
+  var _a, _b;
+  const preloadImageSize = (_a = parameters == null ? void 0 : parameters.preloadImageSize) != null ? _a : 1024;
+  const preloadPanoIndexNumber = (_b = parameters == null ? void 0 : parameters.preloadPanoIndexNumber) != null ? _b : 4;
+  const lastSize = five.imageOptions.size;
+  let timer = void 0;
+  const doPreload = (quene) => {
+    if (quene.length === 0)
+      return;
+    five.preloadPano(quene[0]);
+    if (quene.length === 1)
+      return;
+    timer = setTimeout(() => doPreload(quene.splice(1)), 1e3);
+  };
+  const onPanoArrived = function(panoIndex) {
+    if (parameters == null ? void 0 : parameters.shouldPreloadAroundPanoImage) {
+      const shouldPreload = parameters.shouldPreloadAroundPanoImage(panoIndex);
+      if (!shouldPreload)
+        return;
+    }
+    if (timer)
+      clearTimeout(timer);
+    const currentIndex = panoIndex;
+    const currentObserver = five.work.observers[currentIndex];
+    const preloadIndexArray = Array.from(new Set(five.work.observers.filter((observer) => observer.floorIndex === currentObserver.floorIndex).map((observer) => {
+      const distance = observer.standingPosition.clone().distanceTo(currentObserver.standingPosition);
+      return { observer, distance };
+    }).sort((a, b) => a.distance - b.distance).slice(0, preloadPanoIndexNumber).map(({ observer }) => observer.panoIndex)));
+    doPreload(preloadIndexArray);
+  };
+  const onFirstPanoArrived = (panoIndex) => {
+    five.on("panoArrived", onPanoArrived);
+    const shouldPreloadFirstPanoImage = five.imageOptions.size !== lastSize;
+    if (!shouldPreloadFirstPanoImage)
+      return;
+    nextFrame(() => {
+      five.imageOptions.size = lastSize;
+      five.moveToPano(panoIndex);
+    }, 5);
+  };
+  five.imageOptions.size = lastSize && lastSize > preloadImageSize ? preloadImageSize : lastSize;
+  if (five.imageOptions.size !== lastSize)
+    five.once("panoArrived", onFirstPanoArrived);
+  return {
+    dispose() {
+      five.off("panoArrived", onFirstPanoArrived);
+      five.off("panoArrived", onPanoArrived);
+    }
+  };
+};
 if (Number.EPSILON === void 0) {
   Number.EPSILON = Math.pow(2, -52);
 }
@@ -27333,150 +27534,351 @@ if (typeof __THREE_DEVTOOLS__ !== "undefined") {
     revision: REVISION
   } }));
 }
-const ModelViewPlugin = (five) => {
-  let needsRender = true;
-  const scene = new Scene();
-  const camera = new PerspectiveCamera(60, 1, 0.1, 1e3);
-  let model = new Object3D();
-  {
-    const light = new DirectionalLight(16777215, 0.5);
-    light.position.copy(new Vector3(1, 1, 1));
-    scene.add(light);
-  }
-  {
-    const light = new DirectionalLight(16777215, 0.3);
-    scene.add(light);
-  }
-  {
-    const light = new AmbientLight(16777215, 0.3);
-    scene.add(light);
-  }
-  scene.add(model);
-  let renderer = null;
-  const initRendererIfNeeds = () => {
-    if (!five.renderer)
-      return;
-    if (!renderer) {
-      renderer = new WebGLRenderer({ antialias: false, alpha: true });
-      renderer.setPixelRatio(five.renderer.getPixelRatio());
-      renderer.outputEncoding = sRGBEncoding;
-      renderer.setClearColor(1579548, 0);
-      renderer.autoClear = true;
-    }
-    return renderer;
-  };
-  const modelWillLoad = () => {
-    model.traverse((object) => {
-      if (object instanceof Mesh) {
-        const materials = [].concat(object.material);
-        materials.forEach((material) => material.dispose());
+var CSS3DObject = function(element) {
+  Object3D.call(this);
+  this.element = element;
+  this.element.style.position = "absolute";
+  this.element.style.pointerEvents = "auto";
+  this.addEventListener("removed", function() {
+    this.traverse(function(object) {
+      if (object.element instanceof Element && object.element.parentNode !== null) {
+        object.element.parentNode.removeChild(object.element);
       }
     });
-    scene.remove(model);
-    model = new Object3D();
-    scene.add(model);
-    update();
-  };
-  const modelLoaded = () => {
-    function cloneMaterial(material) {
-      material = material.clone();
-      material.uniforms.modelAlpha.value = 1;
-      if (material.uniforms.map.value) {
-        material.uniforms.map.value.needsUpdate = true;
-      }
-      return material;
-    }
-    function cloneModel(model2) {
-      if (model2 instanceof Mesh) {
-        const geometry = model2.geometry;
-        const material = Array.isArray(model2.material) ? model2.material.map(cloneMaterial) : cloneMaterial(model2.material);
-        return new Mesh(geometry, material);
-      } else if (model2 instanceof Group) {
-        const group = new Group();
-        model2.children.forEach((object) => group.add(cloneModel(object)));
-        return group;
-      } else {
-        const object3D = new Object3D();
-        model2.children.forEach((object) => object3D.add(cloneModel(object)));
-        return object3D;
-      }
-    }
-    scene.remove(model);
-    model = cloneModel(five.model);
-    scene.add(model);
-    update();
-  };
-  const appendTo = (element, size = {}) => {
-    const renderer2 = initRendererIfNeeds();
-    if (!renderer2)
-      return;
-    element.appendChild(renderer2.domElement);
-    refresh(size);
-    const positionType = window.getComputedStyle(element).position;
-    if (positionType !== "relative" && positionType !== "absolute" && positionType !== "fixed" && positionType !== "sticky")
-      element.style.position = "relative";
-  };
-  const refresh = (size = {}) => {
-    if (!renderer)
-      return;
-    const element = renderer.domElement;
-    const container = element.parentNode;
-    if (container && container.nodeName) {
-      const { width = container.offsetWidth, height = container.offsetHeight } = size;
-      renderer.setSize(width, height);
-      camera.aspect = width / height;
-      camera.updateProjectionMatrix();
-    }
-    needsRender = true;
-  };
-  const cameraDistance = () => {
-    const bounding = five.model.bounding;
-    const { fov: fov2, aspect: aspect2 } = camera;
-    const radius = Math.sqrt(Math.pow(bounding.max.x - bounding.min.x + 2, 2) + Math.pow(bounding.max.y - bounding.min.y + 2, 2) + Math.pow(bounding.max.z - bounding.min.z + 2, 2));
-    let distance = radius / 2 / Math.tan(Math.PI * fov2 / 360);
-    if (aspect2 < 1)
-      distance = distance / aspect2;
-    return isNaN(distance) ? radius : distance;
-  };
-  const update = () => {
-    const { longitude, latitude } = five.getPose();
-    const distance = cameraDistance();
-    const lookAt = five.model.bounding.getCenter(new Vector3());
-    const longitudeDistance = distance * Math.cos(latitude);
-    const cameraPosition = new Vector3();
-    cameraPosition.x = Math.sin(longitude) * longitudeDistance + lookAt.x;
-    cameraPosition.z = Math.cos(longitude) * longitudeDistance + lookAt.z;
-    cameraPosition.y = Math.sin(latitude) * distance + lookAt.y;
-    camera.position.copy(cameraPosition);
-    camera.lookAt(lookAt);
-    needsRender = true;
-  };
-  const render = () => {
-    if (needsRender !== true)
-      return;
-    if (!renderer)
-      return;
-    if (!renderer.domElement.parentNode)
-      return;
-    const parentNode = renderer.domElement.parentNode;
-    if (parentNode.offsetWidth === 0)
-      return;
-    renderer.render(scene, camera);
-    needsRender = false;
-  };
-  const dispose = () => {
-    if (renderer)
-      renderer.dispose();
-    renderer = null;
-  };
-  five.on("modelLoaded", modelLoaded);
-  five.on("modelWillLoad", modelWillLoad);
-  five.on("cameraDirectionUpdate", update);
-  five.on("dispose", dispose);
-  five.on("renderFrame", render);
-  return { appendTo, refresh };
+  });
 };
-function A() {
-  return 66;
+CSS3DObject.prototype = Object.create(Object3D.prototype);
+CSS3DObject.prototype.constructor = CSS3DObject;
+var CSS3DSprite = function(element) {
+  CSS3DObject.call(this, element);
+};
+CSS3DSprite.prototype = Object.create(CSS3DObject.prototype);
+CSS3DSprite.prototype.constructor = CSS3DSprite;
+var CSS3DRenderer = function() {
+  var _this = this;
+  var _width, _height;
+  var _widthHalf, _heightHalf;
+  var matrix = new Matrix4();
+  var cache = {
+    camera: { fov: 0, style: "" },
+    objects: /* @__PURE__ */ new WeakMap()
+  };
+  var domElement = document.createElement("div");
+  domElement.style.overflow = "hidden";
+  this.domElement = domElement;
+  var cameraElement = document.createElement("div");
+  cameraElement.style.WebkitTransformStyle = "preserve-3d";
+  cameraElement.style.transformStyle = "preserve-3d";
+  cameraElement.style.pointerEvents = "none";
+  domElement.appendChild(cameraElement);
+  var isIE = /Trident/i.test(navigator.userAgent);
+  this.getSize = function() {
+    return {
+      width: _width,
+      height: _height
+    };
+  };
+  this.setSize = function(width, height) {
+    _width = width;
+    _height = height;
+    _widthHalf = _width / 2;
+    _heightHalf = _height / 2;
+    domElement.style.width = width + "px";
+    domElement.style.height = height + "px";
+    cameraElement.style.width = width + "px";
+    cameraElement.style.height = height + "px";
+  };
+  function epsilon(value) {
+    return Math.abs(value) < 1e-10 ? 0 : value;
+  }
+  function getCameraCSSMatrix(matrix2) {
+    var elements = matrix2.elements;
+    return "matrix3d(" + epsilon(elements[0]) + "," + epsilon(-elements[1]) + "," + epsilon(elements[2]) + "," + epsilon(elements[3]) + "," + epsilon(elements[4]) + "," + epsilon(-elements[5]) + "," + epsilon(elements[6]) + "," + epsilon(elements[7]) + "," + epsilon(elements[8]) + "," + epsilon(-elements[9]) + "," + epsilon(elements[10]) + "," + epsilon(elements[11]) + "," + epsilon(elements[12]) + "," + epsilon(-elements[13]) + "," + epsilon(elements[14]) + "," + epsilon(elements[15]) + ")";
+  }
+  function getObjectCSSMatrix(matrix2, cameraCSSMatrix) {
+    var elements = matrix2.elements;
+    var matrix3d = "matrix3d(" + epsilon(elements[0]) + "," + epsilon(elements[1]) + "," + epsilon(elements[2]) + "," + epsilon(elements[3]) + "," + epsilon(-elements[4]) + "," + epsilon(-elements[5]) + "," + epsilon(-elements[6]) + "," + epsilon(-elements[7]) + "," + epsilon(elements[8]) + "," + epsilon(elements[9]) + "," + epsilon(elements[10]) + "," + epsilon(elements[11]) + "," + epsilon(elements[12]) + "," + epsilon(elements[13]) + "," + epsilon(elements[14]) + "," + epsilon(elements[15]) + ")";
+    if (isIE) {
+      return "translate(-50%,-50%)translate(" + _widthHalf + "px," + _heightHalf + "px)" + cameraCSSMatrix + matrix3d;
+    }
+    return "translate(-50%,-50%)" + matrix3d;
+  }
+  function renderObject(object, scene, camera, cameraCSSMatrix) {
+    if (object instanceof CSS3DObject) {
+      object.onBeforeRender(_this, scene, camera);
+      var style;
+      if (object instanceof CSS3DSprite) {
+        matrix.copy(camera.matrixWorldInverse);
+        matrix.transpose();
+        matrix.copyPosition(object.matrixWorld);
+        matrix.scale(object.scale);
+        matrix.elements[3] = 0;
+        matrix.elements[7] = 0;
+        matrix.elements[11] = 0;
+        matrix.elements[15] = 1;
+        style = getObjectCSSMatrix(matrix, cameraCSSMatrix);
+      } else {
+        style = getObjectCSSMatrix(object.matrixWorld, cameraCSSMatrix);
+      }
+      var element = object.element;
+      var cachedObject = cache.objects.get(object);
+      if (cachedObject === void 0 || cachedObject.style !== style) {
+        element.style.WebkitTransform = style;
+        element.style.transform = style;
+        var objectData = { style };
+        if (isIE) {
+          objectData.distanceToCameraSquared = getDistanceToSquared(camera, object);
+        }
+        cache.objects.set(object, objectData);
+      }
+      element.style.display = object.visible ? "" : "none";
+      if (element.parentNode !== cameraElement) {
+        cameraElement.appendChild(element);
+      }
+      object.onAfterRender(_this, scene, camera);
+    }
+    for (var i = 0, l = object.children.length; i < l; i++) {
+      renderObject(object.children[i], scene, camera, cameraCSSMatrix);
+    }
+  }
+  var getDistanceToSquared = function() {
+    var a = new Vector3();
+    var b = new Vector3();
+    return function(object1, object2) {
+      a.setFromMatrixPosition(object1.matrixWorld);
+      b.setFromMatrixPosition(object2.matrixWorld);
+      return a.distanceToSquared(b);
+    };
+  }();
+  function filterAndFlatten(scene) {
+    var result = [];
+    scene.traverse(function(object) {
+      if (object instanceof CSS3DObject)
+        result.push(object);
+    });
+    return result;
+  }
+  function zOrder2(scene) {
+    var sorted = filterAndFlatten(scene).sort(function(a, b) {
+      var distanceA = cache.objects.get(a).distanceToCameraSquared;
+      var distanceB = cache.objects.get(b).distanceToCameraSquared;
+      return distanceA - distanceB;
+    });
+    var zMax = sorted.length;
+    for (var i = 0, l = sorted.length; i < l; i++) {
+      sorted[i].element.style.zIndex = zMax - i;
+    }
+  }
+  this.render = function(scene, camera) {
+    var fov2 = camera.projectionMatrix.elements[5] * _heightHalf;
+    if (cache.camera.fov !== fov2) {
+      if (camera.isPerspectiveCamera) {
+        domElement.style.WebkitPerspective = fov2 + "px";
+        domElement.style.perspective = fov2 + "px";
+      } else {
+        domElement.style.WebkitPerspective = "";
+        domElement.style.perspective = "";
+      }
+      cache.camera.fov = fov2;
+    }
+    if (scene.autoUpdate === true)
+      scene.updateMatrixWorld();
+    if (camera.parent === null)
+      camera.updateMatrixWorld();
+    if (camera.isOrthographicCamera) {
+      var tx = -(camera.right + camera.left) / 2;
+      var ty = (camera.top + camera.bottom) / 2;
+    }
+    var cameraCSSMatrix = camera.isOrthographicCamera ? "scale(" + fov2 + ")translate(" + epsilon(tx) + "px," + epsilon(ty) + "px)" + getCameraCSSMatrix(camera.matrixWorldInverse) : "translateZ(" + fov2 + "px)" + getCameraCSSMatrix(camera.matrixWorldInverse);
+    var style = cameraCSSMatrix + "translate(" + _widthHalf + "px," + _heightHalf + "px)";
+    if (cache.camera.style !== style && !isIE) {
+      cameraElement.style.WebkitTransform = style;
+      cameraElement.style.transform = style;
+      cache.camera.style = style;
+    }
+    renderObject(scene, scene, camera, cameraCSSMatrix);
+    if (isIE) {
+      zOrder2(scene);
+    }
+  };
+};
+function evenNumber(num, config) {
+  const roundNum = Math.round(num);
+  return roundNum % 2 === 0 ? roundNum : roundNum + Number((config == null ? void 0 : config.smaller) ? -1 : 1);
 }
-export { A, ModelViewPlugin };
+function centerPoint(point1, point2) {
+  return new Vector3$1((point1.x + point2.x) / 2, (point1.y + point2.y) / 2, (point1.z + point2.z) / 2);
+}
+const transformPositionToVector3 = ({ x, y, z }) => new Vector3$1(x, y, z);
+function createResizeObserver(func, element) {
+  if (!element || typeof ResizeObserver === "undefined") {
+    return {
+      observe: () => window.addEventListener("resize", func),
+      unobserve: () => window.removeEventListener("resize", func)
+    };
+  } else {
+    const observer = new ResizeObserver(func);
+    return {
+      observe: () => observer.observe(element),
+      unobserve: () => observer.unobserve(element)
+    };
+  }
+}
+const CSS3DRenderPlugin = (five) => {
+  const state = { disposeCallbacks: [] };
+  const create3DDomContainer = (...params) => {
+    var _a, _b, _c;
+    const points = params[0].map((point) => point instanceof Vector3$1 ? point : transformPositionToVector3(point));
+    const config = params[1];
+    if ((points == null ? void 0 : points.length) < 4)
+      return console.error("points must be equal or greater than than 4");
+    if (!((_a = five == null ? void 0 : five.model) == null ? void 0 : _a.loaded))
+      return console.error("five.model.loaded is: ", (_b = five == null ? void 0 : five.model) == null ? void 0 : _b.loaded);
+    const fiveElement = five.getElement();
+    if (!fiveElement)
+      return console.error("five.getElement() is " + fiveElement);
+    const disposers = [];
+    const ratio = (config == null ? void 0 : config.ratio) || 216e-5;
+    if (ratio <= 215e-5)
+      console.warn("if you need click css3DElement on safari, ratio must be greater than 0.00215");
+    const dpr = (config == null ? void 0 : config.dpr) || 1;
+    const mode = (config == null ? void 0 : config.mode) || "front";
+    const autoRender = (_c = config == null ? void 0 : config.autoRender) != null ? _c : true;
+    const behindFiveContainer = (config == null ? void 0 : config.behindFiveContainer) || fiveElement.parentElement || document.body;
+    const container = (config == null ? void 0 : config.container) || document.createElement("div");
+    container.classList.add("__Dnalogel-plugin--CSS3DRenderPlugin");
+    const { css3DObject, mesh } = createObject(points, { ratio, dpr, container, mode });
+    let resizeObserver;
+    const frontModeUnInited = mode === "front" && !state.frontMode;
+    const behindModeUnInited = mode === "behind" && !state.behindMode;
+    const inited = !(frontModeUnInited || behindModeUnInited);
+    let stopRenderFlag = false;
+    let requestAnimationFrameId = null;
+    if (behindModeUnInited) {
+      state.behindMode = { scene: new Scene$1(), css3DRenderer: new CSS3DRenderer() };
+    }
+    if (frontModeUnInited) {
+      state.frontMode = { scene: new Scene$1(), css3DRenderer: new CSS3DRenderer() };
+    }
+    const { scene, css3DRenderer } = mode === "behind" ? state.behindMode : state.frontMode;
+    const render = (() => {
+      if (!inited) {
+        const css3DRendererSetSize = () => {
+          const rendererWidth = evenNumber(fiveElement.clientWidth, { smaller: true });
+          const rendererHeight = evenNumber(fiveElement.clientHeight, { smaller: true });
+          css3DRenderer.setSize(rendererWidth, rendererHeight);
+        };
+        css3DRendererSetSize();
+        resizeObserver = createResizeObserver(css3DRendererSetSize, fiveElement);
+        css3DRenderer.domElement.style.position = "absolute";
+        css3DRenderer.domElement.style.top = "0";
+        css3DRenderer.domElement.style.userSelect = "none";
+        css3DRenderer.domElement.style.pointerEvents = "none";
+        const renderEveryFrame = () => {
+          if (stopRenderFlag)
+            return;
+          requestAnimationFrameId = requestAnimationFrame(renderEveryFrame);
+          css3DRenderer.render(scene, five.camera);
+        };
+        return () => {
+          var _a2;
+          scene.add(css3DObject);
+          (_a2 = resizeObserver == null ? void 0 : resizeObserver.observe) == null ? void 0 : _a2.call(resizeObserver);
+          renderEveryFrame();
+          if (mode === "behind" && mesh) {
+            five.scene.add(mesh);
+            disposers.push(() => mesh && five.scene.remove(mesh));
+          }
+        };
+      } else {
+        return () => {
+          scene.add(css3DObject);
+        };
+      }
+    })();
+    if (frontModeUnInited) {
+      const wrapper = fiveElement.parentElement || document.body;
+      wrapper.appendChild(css3DRenderer.domElement);
+    }
+    if (behindModeUnInited) {
+      const wrapper = behindFiveContainer;
+      wrapper.appendChild(css3DRenderer.domElement);
+    }
+    const dispose = () => {
+      var _a2;
+      stopRenderFlag = true;
+      disposers.forEach((d) => d == null ? void 0 : d());
+      scene.remove(css3DObject);
+      if (typeof requestAnimationFrameId === "number")
+        cancelAnimationFrame(requestAnimationFrameId);
+      if (scene.children.length === 0) {
+        css3DRenderer.domElement.remove();
+        if (mode === "front")
+          state.frontMode = void 0;
+        if (mode === "behind")
+          state.behindMode = void 0;
+        if (!state.behindMode && !state.frontMode) {
+          (_a2 = resizeObserver == null ? void 0 : resizeObserver.unobserve) == null ? void 0 : _a2.call(resizeObserver);
+        }
+      }
+      return true;
+    };
+    const idx = state.disposeCallbacks.findIndex((item) => item === dispose);
+    if (idx !== -1) {
+      state.disposeCallbacks.splice(idx, 1);
+    } else {
+      state.disposeCallbacks.push(dispose);
+    }
+    if (autoRender)
+      render();
+    return { container, dispose, css3DObject, render: autoRender ? void 0 : render };
+  };
+  const createObject = (points, config) => {
+    const { ratio, dpr, container: element, mode } = config;
+    const planeWidth = points[0].distanceTo(points[1]);
+    const planeHeight = points[1].distanceTo(points[2]);
+    const domWidthPx = evenNumber(planeWidth / ratio * dpr);
+    const domHeightPx = evenNumber(planeHeight / ratio * dpr);
+    const css3DObject = new CSS3DObject(element);
+    css3DObject.scale.set(ratio, ratio, ratio);
+    element.style.width = domWidthPx + "px";
+    element.style.height = domHeightPx + "px";
+    element.style.pointerEvents = "none";
+    const centerPosition = centerPoint(points[0], points[2]);
+    const vector01 = points[1].clone().sub(points[0]);
+    const vector12 = points[2].clone().sub(points[1]);
+    const rotateXAngle = new Vector3$1(0, 1, 0).angleTo(new Vector3$1(0, vector12.y, vector12.z));
+    const rotateYAngle = new Vector3$1(1, 0, 0).angleTo(new Vector3$1(vector01.x, 0, vector01.z));
+    const rotateZAngle = vector01.angleTo(new Vector3$1(vector01.x, 0, vector01.z));
+    const rolateX = (vector12.z > 0 ? 1 : -1) * rotateXAngle;
+    const rolateY = (vector01.z < 0 ? 1 : -1) * rotateYAngle;
+    const rolateZ = (vector01.x > 0 && vector01.y < 0 || vector01.x < 0 && vector01.y > 0 ? -1 : 1) * rotateZAngle;
+    css3DObject.rotateOnWorldAxis(new Vector3$1(1, 0, 0), rolateX);
+    css3DObject.rotateOnWorldAxis(new Vector3$1(0, 1, 0), rolateY);
+    css3DObject.rotateOnWorldAxis(new Vector3$1(0, 0, 1), rolateZ);
+    css3DObject.position.set(centerPosition.x, centerPosition.y, centerPosition.z);
+    let mesh;
+    if (mode === "behind") {
+      const material = new THREE.MeshBasicMaterial({
+        opacity: 0,
+        transparent: false,
+        side: THREE.DoubleSide
+      });
+      const geometry = new THREE.PlaneGeometry(domWidthPx, domHeightPx);
+      mesh = new THREE.Mesh(geometry, material);
+      mesh.name = "CSS3DRenderPlugin-mesh";
+      mesh.position.copy(css3DObject.position);
+      mesh.rotation.copy(css3DObject.rotation);
+      mesh.scale.copy(css3DObject.scale);
+    }
+    return { css3DObject, mesh };
+  };
+  return {
+    create3DDomContainer,
+    disposeAll: () => {
+      state.disposeCallbacks.forEach((d) => d == null ? void 0 : d());
+      state.disposeCallbacks = [];
+    }
+  };
+};
+export { AutoPreloadPlugin, CSS3DRenderPlugin, ModelViewPlugin };

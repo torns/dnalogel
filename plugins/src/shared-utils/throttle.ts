@@ -5,7 +5,7 @@
  * @param wait - 需要延迟的毫秒数
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export default function throttle<T extends (...args: any) => any>(
+export default function throttle<T extends (...args: any[]) => any>(
   func: T,
   wait = 200,
 ): (...args: Parameters<T>) => void {

@@ -3,7 +3,7 @@
  * @param func - 要防抖动的函数
  * @param [wait=0] - 需要延迟的毫秒数
  */
-export default function debounce<T extends (...args: any) => any>(
+export default function debounce<T extends (...args: any[]) => any>(
   func: T,
   wait = 200,
 ): (...args: Parameters<T>) => void {

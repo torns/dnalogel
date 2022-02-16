@@ -1,11 +1,11 @@
 {
   "name": "@realsee/dnalogel",
-  "main": "lib/dnalogel.umd.js",
-  "module": "lib/dnalogel.es.js",
+  "main": "dist/dnalogel.umd.js",
+  "module": "dist/dnalogel.es.js",
   "exports": {
     ".": {
-      "import": "lib/dnalogel.es.js",
-      "require": "lib/dnalogel.umd.js"
+      "import": "dist/dnalogel.es.js",
+      "require": "dist/dnalogel.umd.js"
     }
   },
   "author": "REALSEE-DEVELOPER",

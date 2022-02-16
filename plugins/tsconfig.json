@@ -15,7 +15,7 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noImplicitReturns": true,
-    "rootDir": ".",
+//    "rootDir": ".",
     "outDir": "libs",
     "allowJs": true
   },

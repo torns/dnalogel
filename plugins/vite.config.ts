@@ -1,13 +1,15 @@
 import { defineConfig } from 'vite'
 import reactRefresh from '@vitejs/plugin-react-refresh'
 import { resolve } from 'path'
+// import svelte from 'rollup-plugin-svelte'
+import { svelte as sveltePlugin } from '@sveltejs/vite-plugin-svelte'
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [reactRefresh()],
+  plugins: [reactRefresh(), sveltePlugin()],
   build: {
     lib: {
-      entry: resolve(__dirname, 'resources/index.tsx'),
+      entry: resolve(__dirname, 'src/resources/index.tsx'),
       name: 'dnalogel',
       // formats: ['es'],
       fileName: (format) => `dnalogel.${format}.js`
@@ -22,10 +24,17 @@ export default defineConfig({
           five: 'FiveSDK',
           three: 'THREE'
         }
-      }
+      },
+      plugins: [
+          // svelte({
+          //   extensions: [], // By default, all
+          //   include: 'resources/**/*.svelte',
+          //   compilerOptions: {}
+          // })
+      ]
     },
     minify: 'terser',
-    outDir: 'lib',
+    outDir: 'dist',
     watch: {}
   }
 })

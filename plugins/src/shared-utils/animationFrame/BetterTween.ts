@@ -1,5 +1,5 @@
 import TWEEN from '@tweenjs/tween.js'
-import { requestAnimationFrameInterval } from '.'
+import { requestAnimationFrameInterval } from './index'
 
 export class BetterTween<G> extends TWEEN.Tween<G> {
   private disposeMethods: (() => void)[] = []

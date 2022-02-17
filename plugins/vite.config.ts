@@ -8,7 +8,7 @@ export default defineConfig({
   plugins: [reactRefresh(), svelte()],
   build: {
     lib: {
-      entry: resolve(__dirname, 'src/resources/index.tsx'),
+      entry: resolve(__dirname, 'src/plugin/index.tsx'),
       name: 'dnalogel',
       // formats: ['es'],
       fileName: (format) => `dnalogel.${format}.js`

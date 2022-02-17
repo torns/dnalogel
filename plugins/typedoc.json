@@ -1,5 +1,4 @@
 {
-  "entryPoints": ["src/resources/index.tsx"],
-  "out": "../docs",
-  "customCss": "./custom-docs.css"
+  "entryPoints": ["src/plugin/index.tsx"],
+  "out": "../docs"
 }

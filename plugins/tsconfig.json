@@ -2,7 +2,7 @@
   "extends": "@tsconfig/svelte/tsconfig.json",
   "compilerOptions": {
     "jsx": "react",
-    "importsNotUsedAsValues": "remove",
+    "importsNotUsedAsValues": "preserve",
     "target": "esnext",
     "useDefineForClassFields": true,
     "module": "esnext",

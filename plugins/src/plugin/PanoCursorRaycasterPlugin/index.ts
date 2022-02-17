@@ -41,7 +41,7 @@ export interface PanoCursorRaycasterPluginExportType {
    * @description: 清理函数
    * @return {() => void} 清理函数
    */
-  destroy: () => void
+  dispose: () => void
 }
 
 interface PanoCursorRaycasterPluginState {
@@ -50,7 +50,9 @@ interface PanoCursorRaycasterPluginState {
 }
 
 /**
- * 全景中对当前鼠标的位置进行碰撞监测
+ * @name-cn 全景鼠标碰撞选点插件
+ * @name-en PanoCursorRaycasterPlugin
+ * @description 全景中对当前鼠标的位置进行碰撞监测
  * @param five
  * @return
  */
@@ -133,7 +135,7 @@ export const PanoCursorRaycasterPlugin: FivePlugin<
     return state.intersection
   }
 
-  const destroy = () => {
+  const dispose = () => {
     state.disposers?.forEach?.((d) => d?.())
     five.off('intersectionOnModelUpdate', updateIntersection)
     five.off('intersectionHidden', clearIntersection)
@@ -151,7 +153,7 @@ export const PanoCursorRaycasterPlugin: FivePlugin<
     return newPoint
   }
 
-  return { intersection, pointAxesHelper, movePointTowardsCamera, destroy, canSeePoint }
+  return { intersection, pointAxesHelper, movePointTowardsCamera, dispose, canSeePoint }
 }
 
 export default PanoCursorRaycasterPlugin

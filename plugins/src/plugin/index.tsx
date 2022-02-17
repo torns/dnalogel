@@ -5,4 +5,14 @@ export { default as AutoPreloadPlugin } from "./AutoPreloadPlugin"
 
 export { default as CSS3DRenderPlugin } from "./CSS3DRenderPlugin"
 
-export { default as PanoCursorRaycasterPluginUsage } from "./PanoCursorRaycasterPlugin"
+// export type { PanoCursorRaycasterPluginExportType } from './PanoCursorRaycasterPlugin'
+// export { default as PanoCursorRaycasterPluginUsage } from "./PanoCursorRaycasterPlugin"
+
+export type {
+    ModelRoomLabelController,
+    ModelRoomLabelPluginData,
+    RoomLabel,
+    ModelRoomLabelPluginReturnType,
+    ModelRoomLabelPluginParameters
+} from './ModelRoomLabelPlugin'
+export { default as ModelRoomLabelPlugin } from './ModelRoomLabelPlugin'

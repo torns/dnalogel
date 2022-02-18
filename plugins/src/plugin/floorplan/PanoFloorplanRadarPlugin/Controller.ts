@@ -1,25 +1,24 @@
 import type { Five } from '@realsee/five'
 import type { FloorplanServerData } from '../typings/floorplanServerData'
 import type { FloorplanData, FloorplanExtraObject3D, FloorplanExtraObject } from '../typings/floorplanData'
-import formatData, { formatExtraObjects } from '../utils/formatData'
+
 import Main from './Components/Main.svelte'
+import formatData, { formatExtraObjects } from '../utils/formatData'
 
 export interface PanoFloorplanRadarPluginControllerParameter {
   wrapper?: string | Element
   configs?: {
     hoverEnable?: boolean
-    // cameraImage?: { style: React.CSSProperties }
+    cameraImageUrl?: string
   }
 }
 
 export default class PanoFloorplanRadarPluginController {
   private app?: Main
   private five: Five
-  private pxmm = 0
   private wrapperSelector = ''
   private data?: FloorplanData
   private wrapper: Element | null = null
-  private size = { width: 0, height: 0 }
   private extraObjects?: FloorplanExtraObject[]
   private originExtraObjects?: FloorplanExtraObject3D[]
   private configs: NonNullable<PanoFloorplanRadarPluginControllerParameter['configs']> = {}
@@ -35,7 +34,7 @@ export default class PanoFloorplanRadarPluginController {
   }
 
   public dispose = () => {
-    // TODO: destroy svelte Component
+    this.app?.$destroy()
   }
 
   public load = async (data: FloorplanServerData) => {
@@ -57,7 +56,6 @@ export default class PanoFloorplanRadarPluginController {
     //   })
     // }
     // await loadImage()
-    this.updateSize()
     this.render()
   }
 
@@ -79,45 +77,30 @@ export default class PanoFloorplanRadarPluginController {
     this.render()
   }
 
-  private updateSize() {
-    if (!this.data || !this.wrapper) return
-    const size = Math.min(this.wrapper.clientWidth, this.wrapper.clientHeight)
-    const { max, min } = this.data.bounding
-    const boundingWidth = max.x - min.x
-    const boundingHeight = max.y - min.y
-    const [width, height] = (function getSize() {
-      if (boundingWidth > boundingHeight) return [size, (size / boundingWidth) * boundingHeight]
-      return [(size / boundingHeight) * boundingWidth, size]
-    })()
-    this.size = { width, height }
-    this.pxmm = width / boundingWidth
-  }
-
   private render() {
     // 处理 wrapper
     if (!this.wrapper) {
       const _wrapper = document.querySelector(this.wrapperSelector)
       this.wrapper = _wrapper
     }
-    if (!this.data || !this.pxmm || !this.wrapper) return
+    if (!this.data || !this.wrapper) return
     if (!this.extraObjects && this.originExtraObjects) {
       this.extraObjects = formatExtraObjects(this.originExtraObjects, this.five, this.data)
     }
-    // const props: Parameters<typeof Content>[0] = {
-    //   extraObjects: this.extraObjects,
-    //   cameraImage: this.configs.cameraImage,
-    // }
     const props = {
-      pxmm: this.pxmm,
       five: this.five,
       floorplanData: this.data,
-      hoverEnable: this.configs.hoverEnable,
+      extraObjects: this.extraObjects,
+      cameraImageUrl: this.configs.cameraImageUrl,
+      hoverEnable: this.configs.hoverEnable ?? false,
     }
     if (!this.app) {
       this.app = new Main({
         target: this.wrapper,
         props,
       })
+      return
     }
+    this.app.$set(props)
   }
 }

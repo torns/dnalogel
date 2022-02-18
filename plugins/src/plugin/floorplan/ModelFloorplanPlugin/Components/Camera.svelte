@@ -33,7 +33,7 @@
   ></div>
 </div>
 
-<style>
+<style lang="postcss">
   .floorplan__camera-position {
     position: absolute;
     width: 0;

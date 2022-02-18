@@ -14,7 +14,7 @@
   export let roomLabelsEnable: boolean
   export let ruleLabelsEnable: boolean
   export let floorplanData: FloorplanData
-  export let onRoomHeightClick: (e: MouseEvent) => boolean | undefined
+  export let onRoomHeightClick: undefined | ((e: MouseEvent) => boolean | undefined)
   export let getLabelElement: undefined | ((room: FloorplanRoomItem) => Element | null)
 </script>
 

@@ -19,7 +19,7 @@ export interface PanoCursorRaycasterPluginExportType {
    * @return {{clear: () => void; pointAxesHelperMesh: THREE.Group}} clear: 清理函数；pointAxesHelperMesh: 辅助坐标轴mesh
    */
   // eslint-disable-next-line prettier/prettier
-  pointAxesHelper: (point: Vector3, length?: number, fixDistance?: number) => { clear: () => void; pointAxesHelperMesh: THREE.Group }
+  pointAxesHelper: (point: Vector3, length?: number, fixDistance?: number) => { clear: () => void; pointAxesHelperMesh: Group }
 
   /**
    * @description: 将一个点在camera和点的向量上移动。传入点的位置和相对移动的距离，返回一个新的位置
@@ -41,7 +41,7 @@ export interface PanoCursorRaycasterPluginExportType {
    * @description: 清理函数
    * @return {() => void} 清理函数
    */
-  dispose: () => void
+  destroy: () => void
 }
 
 interface PanoCursorRaycasterPluginState {
@@ -50,16 +50,14 @@ interface PanoCursorRaycasterPluginState {
 }
 
 /**
- * @name-cn 全景鼠标碰撞选点插件
- * @name-en PanoCursorRaycasterPlugin
- * @description 全景中对当前鼠标的位置进行碰撞监测
+ * 全景中对当前鼠标的位置进行碰撞监测
  * @param five
  * @return
  */
 export const PanoCursorRaycasterPlugin: FivePlugin<
-  PanoCursorRaycasterPluginParameterType,
-  PanoCursorRaycasterPluginExportType
-> = (five, {}) => {
+    PanoCursorRaycasterPluginParameterType,
+    PanoCursorRaycasterPluginExportType
+    > = (five, {}) => {
   const state: PanoCursorRaycasterPluginState = {
     intersection: null,
     disposers: [],
@@ -84,30 +82,30 @@ export const PanoCursorRaycasterPlugin: FivePlugin<
   })
 
   const pointAxesHelper = (
-    point: Vector3,
-    length: number = 2,
-    fixDistance: number = 0.1,
+      point: Vector3,
+      length: number = 2,
+      fixDistance: number = 0.1,
   ): { clear: () => void; pointAxesHelperMesh: THREE.Group } => {
     const halfLength = length / 2
     const helperCenterPoint = movePointTowardsCamera(point, fixDistance)
     const p = helperCenterPoint
     const pointAxesHelperMesh = new Group()
     pointAxesHelperMesh.add(
-      createLine(
-        new Vector3(p.x + halfLength, p.y, p.z),
-        new Vector3(p.x - halfLength, p.y, p.z),
-        new Vector3(1, 0, 0),
-      ),
-      createLine(
-        new Vector3(p.x, p.y + halfLength, p.z),
-        new Vector3(p.x, p.y - halfLength, p.z),
-        new Vector3(0, 1, 0),
-      ),
-      createLine(
-        new Vector3(p.x, p.y, p.z + halfLength),
-        new Vector3(p.x, p.y, p.z - halfLength),
-        new Vector3(0, 0, 1),
-      ),
+        createLine(
+            new Vector3(p.x + halfLength, p.y, p.z),
+            new Vector3(p.x - halfLength, p.y, p.z),
+            new Vector3(1, 0, 0),
+        ),
+        createLine(
+            new Vector3(p.x, p.y + halfLength, p.z),
+            new Vector3(p.x, p.y - halfLength, p.z),
+            new Vector3(0, 1, 0),
+        ),
+        createLine(
+            new Vector3(p.x, p.y, p.z + halfLength),
+            new Vector3(p.x, p.y, p.z - halfLength),
+            new Vector3(0, 0, 1),
+        ),
     )
     five.scene.add(pointAxesHelperMesh)
     five.needsRender = true
@@ -135,7 +133,7 @@ export const PanoCursorRaycasterPlugin: FivePlugin<
     return state.intersection
   }
 
-  const dispose = () => {
+  const destroy = () => {
     state.disposers?.forEach?.((d) => d?.())
     five.off('intersectionOnModelUpdate', updateIntersection)
     five.off('intersectionHidden', clearIntersection)
@@ -153,7 +151,7 @@ export const PanoCursorRaycasterPlugin: FivePlugin<
     return newPoint
   }
 
-  return { intersection, pointAxesHelper, movePointTowardsCamera, dispose, canSeePoint }
+  return { intersection, pointAxesHelper, movePointTowardsCamera, destroy, canSeePoint }
 }
 
 export default PanoCursorRaycasterPlugin

@@ -7,6 +7,10 @@
     ".": {
       "import": "dist/dnalogel.es.js",
       "require": "dist/dnalogel.umd.js"
+    },
+    "./dist/style.css": {
+      "import": "dist/style.css",
+      "require": "dist/style.css"
     }
   },
   "author": "REALSEE-DEVELOPER",
@@ -17,7 +21,7 @@
   "scripts": {
     "dev": "vite",
     "tsb": "tsc",
-    "build": "tsc && vite build",
+    "build": "vite build",
     "build:docs": "typedoc --options ./typedoc.json",
     "preview": "vite preview",
     "check": "svelte-check --tsconfig ./tsconfig.json"

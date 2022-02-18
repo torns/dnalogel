@@ -23,14 +23,7 @@ export default defineConfig({
           five: 'FiveSDK',
           three: 'THREE'
         }
-      },
-      plugins: [
-        // svelte({
-        //   extensions: [], // By default, all
-        //   include: 'resources/**/*.svelte',
-        //   compilerOptions: {}
-        // })
-      ]
+      }
     },
     minify: 'terser',
     outDir: 'dist',

@@ -1,6 +1,6 @@
 import { FivePlugin } from '@realsee/five'
-import { Scene, Vector3 } from 'three'
 import * as THREE from 'three'
+import { Scene, Vector3 } from 'three'
 import { CSS3DObject, CSS3DRenderer } from 'three/examples/jsm/renderers/CSS3DRenderer'
 import evenNumber from '../../shared-utils/math/evenNumber'
 import centerPoint from '../../shared-utils/three/centerPoint'

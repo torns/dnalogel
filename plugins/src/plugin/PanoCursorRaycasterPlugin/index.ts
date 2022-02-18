@@ -57,7 +57,7 @@ interface PanoCursorRaycasterPluginState {
 export const PanoCursorRaycasterPlugin: FivePlugin<
     PanoCursorRaycasterPluginParameterType,
     PanoCursorRaycasterPluginExportType
-    > = (five, {}) => {
+    > = (five) => {
   const state: PanoCursorRaycasterPluginState = {
     intersection: null,
     disposers: [],

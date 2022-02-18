@@ -118,7 +118,7 @@ export interface FloorplanServerImagePosition {
 export interface FloorplanServerOutlineItem {
   url: string
   index: number
-  checksum: string
+  checksum?: string
   svg_url?: string
 }
 

@@ -8,6 +8,7 @@
   export let five: Five
   export let pxmm: number
   export let floorplanData: FloorplanData
+  export let cameraImageUrl: undefined | string
 
   /** 获取相机在当前 Five 状态下的位移 */
   function getCameraPositionTransform(panoIndex: number) {
@@ -53,8 +54,8 @@
   <div class="plugin-radar__camera-position" style:transform="{positionTransform}">
     <div
       class="plugin-radar__camera-rotate"
-      style:background-image="url({CAMERA_IMAGE})"
       style:transform="{rotateTransform}"
+      style:background-image="{`url(${cameraImageUrl || CAMERA_IMAGE})`}"
     ></div>
   </div>
 </div>

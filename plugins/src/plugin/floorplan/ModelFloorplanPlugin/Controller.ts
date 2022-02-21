@@ -279,7 +279,7 @@ export default class ModelFloorplanPluginController {
 
   private handleWantsTapGesture: EventCallback['wantsTapGesture'] = () => this.handleClick()
 
-  /** 从 Panorama 切换到其他模式时，记录当前的相机水平视角 */
+  /** 从 Panorama 切换到其他模态时，记录当前的相机水平视角 */
   private handleWantsChangeMode: EventCallback['wantsChangeMode'] = (mode) => {
     if (mode !== 'Panorama') {
       this.lastPanoramaLongitude = this.five.getCurrentState().longitude

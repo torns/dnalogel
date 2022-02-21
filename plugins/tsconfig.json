@@ -1,5 +1,5 @@
 {
-//  "extends": "@tsconfig/svelte/tsconfig.json",
+  "extends": "../node_modules/@tsconfig/svelte/tsconfig.json",
   "compilerOptions": {
     "jsx": "react",
     "importsNotUsedAsValues": "remove",
@@ -18,7 +18,9 @@
     "checkJs": true,
     "outDir": "libs",
     "sourceMap": false,
-    "declaration": true
+    "declaration": true,
+    "moduleResolution": "node",
+    "types": ["node", "svelte"]
   },
   "include": [
     "src/**/*.d.ts", "src/**/*.ts", "src/**/*.js", "src/**/*.svelte"],

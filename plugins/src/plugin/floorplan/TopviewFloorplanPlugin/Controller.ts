@@ -6,7 +6,7 @@ import { pluginStyle } from './style'
 import formatData from '../utils/formatData'
 import { omit } from '../../../shared-utils/filter'
 import getPxmm from '../../../shared-utils/getPxmm'
-import Main from '../ModelFloorplanPlugin/Components/Main.svelte'
+import Main from "../ModelFloorplanPlugin/Components/Main.svelte"
 import changeModelCanvasOpacity from '../../../shared-utils/changeModelCanvasOpacity'
 
 export interface TopviewFloorplanPluginParameterType {

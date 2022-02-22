@@ -16,6 +16,7 @@ import { FloorplanErrorType, FIVE_CAMERA_DEFAULT_FOV, SHOW_ANIME_DURATION } from
 export interface ModelFloorplanParameterType {
   selector?: string | Element
   scale?: number
+  modelOpacity?: number
   autoShowEnable?: boolean
   hoverEnable?: boolean
   compassEnable?: boolean
@@ -191,7 +192,7 @@ export default class ModelFloorplanPluginController {
       this.five.model.show(this.floorIndex)
 
       // 模型消失, 渲染户型图
-      const modelOpacity = opts?.modelOpacity ?? 0.01
+      const modelOpacity = opts?.modelOpacity ?? this.configs.modelOpacity ?? 1
       const renderDuration = opts?.immediately ? 0 : SHOW_ANIME_DURATION
       changeModelCanvasOpacity(this.five, modelOpacity, renderDuration)
       this.render(renderDuration)
@@ -271,7 +272,7 @@ export default class ModelFloorplanPluginController {
     wrapper.append(this.container)
   }
 
-  private handleClick = () => {
+  private handleClick = (): false | void => {
     if (!this.visible) return
     const prevented = this.hooks.emit('click')
     if (prevented) return false

@@ -12,6 +12,7 @@ import changeModelCanvasOpacity from '../../../shared-utils/changeModelCanvasOpa
 export interface TopviewFloorplanPluginParameterType {
   selector?: string | Element
   scale?: number
+  modelOpacity?: number
   cameraImageUrl?: string
   hoverEnable?: boolean
   compassEnable?: boolean
@@ -139,9 +140,11 @@ export class TopviewFloorplanPluginController {
     this.updateSize()
     this.five.model.show(this.floorIndex)
 
-    const modelOpacity = 0.01
     const renderDuration = 500
-    changeModelCanvasOpacity(this.five, modelOpacity, renderDuration)
+    const modelOpacity = this.configs.modelOpacity
+    if (typeof modelOpacity === 'number') {
+      changeModelCanvasOpacity(this.five, modelOpacity, renderDuration)
+    }
 
     this.render(renderDuration)
 

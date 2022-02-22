@@ -19,7 +19,7 @@
 >
   <span
     class="room-label-item__text"
-    style:background-image="{`url(${ROOM_LABEL_BG}`}"
+    style:background-image="{`url(${ROOM_LABEL_BG})`}"
     class:wide="{roomLabel.name.length > 3}"
     on:click="{onClick}">{roomLabel.name}</span
   >

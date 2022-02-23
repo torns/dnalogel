@@ -29,7 +29,7 @@
     style:width="{domSizeStyle}"
     style:height="{domSizeStyle}"
     style:transform="{`rotate(${rotate}deg)`}"
-    style:background-image="{`url(${cameraImageUrl || CAMERA_IMAGE})`}"
+    style="background-image: url({cameraImageUrl || CAMERA_IMAGE})"
   ></div>
 </div>
 

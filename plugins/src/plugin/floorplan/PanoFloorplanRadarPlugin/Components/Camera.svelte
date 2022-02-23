@@ -55,7 +55,7 @@
     <div
       class="plugin-radar__camera-rotate"
       style:transform="{rotateTransform}"
-      style:background-image="{`url(${cameraImageUrl || CAMERA_IMAGE})`}"
+      style="background-image: url({cameraImageUrl || CAMERA_IMAGE})"
     ></div>
   </div>
 </div>

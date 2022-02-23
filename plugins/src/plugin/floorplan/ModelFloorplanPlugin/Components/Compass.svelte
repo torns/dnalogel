@@ -6,11 +6,6 @@
         return (rad / Math.PI) * 180
     }
 
-    // TODO 仅用作测试 svelte 内联样式失效，后续删除
-    function onClick() {
-
-    }
-
     export let floorplanData: FloorplanData
 
     const northRad = floorplanData.entrance?.northRad
@@ -19,13 +14,10 @@
 </script>
 
 {#if northRad}
-	<div class="floorplan-plugin__compass" style:transform="{compassTransformStyle}">
-		<div class="floorplan-plugin__compass-image"
-		     style:background-image="{`url(${COMPASS_IMAGE})`}"
-		     on:click="{onClick}"
-		></div>
-		<span class="floorplan-plugin__compass-text"> 北 </span>
-	</div>
+  <div class="floorplan-plugin__compass" style:transform="{compassTransformStyle}">
+    <div class="floorplan-plugin__compass-image" style="background-image: url({COMPASS_IMAGE})"></div>
+    <span class="floorplan-plugin__compass-text"> 北 </span>
+  </div>
 {/if}
 
 <style>

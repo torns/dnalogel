@@ -15,7 +15,7 @@
 
 {#if northRad}
   <div class="floorplan-plugin__compass" style:transform="{compassTransformStyle}">
-    <div class="floorplan-plugin__compass-image" style="background-image: url({COMPASS_IMAGE})"></div>
+    <div class="floorplan-plugin__compass-image" style="background-image: {`url(${COMPASS_IMAGE})`}"></div>
     <span class="floorplan-plugin__compass-text"> 北 </span>
   </div>
 {/if}

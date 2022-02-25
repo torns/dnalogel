@@ -30,7 +30,7 @@ export default defineConfig({
     },
     minify: 'terser',
     outDir: 'dist',
-    watch: {}
+    // watch: {}
   }
 })
 

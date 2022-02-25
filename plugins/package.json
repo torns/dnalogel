@@ -20,6 +20,7 @@
   "license": "SEE LICENSE IN TERMS.txt",
   "scripts": {
     "tsb": "tsc",
+    "build:dev": "tsc && vite build --watch",
     "build": "tsc && vite build",
     "build:docs": "typedoc --options ./typedoc.json",
     "preview": "vite preview",

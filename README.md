@@ -1,6 +1,8 @@
 # getting start
 
-1、启动 lerna 包管理
+## 开发环境
+
+1、启动 lerna 包管理，进行包的安装即依赖处理
 ```bash
 yarn bootstrap
 ```
@@ -20,4 +22,10 @@ yarn start:examples
 4、文档构建
 ```bash
 yarn docs
+```
+
+## examples 部署上线
+
+```bash
+yarn start
 ```

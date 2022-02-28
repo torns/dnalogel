@@ -20,7 +20,11 @@
     "sourceMap": false,
     "declaration": true,
     "moduleResolution": "node",
-    "types": ["node", "svelte"]
+    "types": ["node", "svelte"],
+//    "paths": {
+//      "@shareUtils": ["src/shared-utils"],
+//      "@typings": ["src/typings"]
+//    }
   },
   "include": [
     "src/**/*.d.ts", "src/**/*.ts", "src/**/*.js", "src/**/*.svelte"],

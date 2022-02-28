@@ -2,13 +2,22 @@ import { defineConfig } from 'vite'
 import reactRefresh from '@vitejs/plugin-react-refresh'
 import { svelte } from '@sveltejs/vite-plugin-svelte'
 import { resolve } from "path";
+import alias from '@rollup/plugin-alias'
+
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  // resolve: {
+  //   alias: {
+  //     '@': path.resolve(__dirname, 'src'),
+  //     '@sharedUtils': path.resolve(__dirname, 'src/share-utils'),
+  //     '@typings': path.resolve(__dirname, 'src/typings')
+  //   }
+  // },
   plugins: [reactRefresh(), svelte()],
   build: {
     lib: {
-      entry: resolve(__dirname, 'src/plugin/index.ts'),
+      entry: resolve(__dirname, 'src/index.ts'),
       name: 'dnalogel',
       // formats: ['es'],
       fileName: (format) => `dnalogel.${format}.js`
@@ -26,7 +35,16 @@ export default defineConfig({
           three: 'THREE',
           'three/examples/jsm/renderers/CSS3DRenderer': 'CSS3DRenderer'
         }
-      }
+      },
+      // plugins: [
+      //   alias({
+      //     entries: {
+      //       '@': path.resolve(__dirname, 'src'),
+      //       '@sharedUtils': path.resolve(__dirname, 'src/share-utils'),
+      //       '@typings': path.resolve(__dirname, 'src/typings')
+      //     }
+      //   })
+      // ]
     },
     minify: 'terser',
     outDir: 'dist',

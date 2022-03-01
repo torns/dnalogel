@@ -1,6 +1,7 @@
 {
   "extends": "../node_modules/@tsconfig/svelte/tsconfig.json",
   "compilerOptions": {
+    "isolatedModules": true,
     "jsx": "react",
     "importsNotUsedAsValues": "remove",
     "target": "esnext",
@@ -20,7 +21,7 @@
     "sourceMap": false,
     "declaration": true,
     "moduleResolution": "node",
-    "types": ["node", "svelte"],
+    "types": ["node", "svelte"]
 //    "paths": {
 //      "@shareUtils": ["src/shared-utils"],
 //      "@typings": ["src/typings"]

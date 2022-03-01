@@ -6,6 +6,7 @@ export { default as CSS3DRenderPlugin } from "./CSS3DRenderPlugin"
 export type { PanoCursorRaycasterPluginExportType } from './PanoCursorRaycasterPlugin'
 export { default as PanoCursorRaycasterPlugin } from "./PanoCursorRaycasterPlugin"
 
+// 模型房屋标签
 export type {
     ModelRoomLabelController,
     ModelRoomLabelPluginData,
@@ -54,3 +55,5 @@ export type {
     ModelEntryDoorGuidePluginExportType
 } from './ModelEntryDoorGuidePlugin'
 export { default as ModelEntryDoorGuidePlugin } from './ModelEntryDoorGuidePlugin'
+
+export { default as CameraMovementPlugin } from './CameraMovementPlugin'

@@ -18,7 +18,6 @@ export interface PanoTVVideoPluginData {
   video_poster_src: string
   points: PanoTVVideoPluginPoints
 }
-
 export interface PanoTVVideoPluginParameterType {
   videoElement?: HTMLVideoElement
 }

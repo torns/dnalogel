@@ -206,13 +206,13 @@ export const CSS3DRenderPlugin: FivePlugin<CSS3DRenderPluginParameterType, CSS3D
      * [0,0,1] => [0,1,0]  为rolate Worldy正方向
      * [0,1,1] => [-1,0,0] 为rolate Worldz正方向
      */
-    const rolateX = (vector12.z > 0 ? 1 : -1) * rotateXAngle
-    const rolateY = (vector01.z < 0 ? 1 : -1) * rotateYAngle
-    const rolateZ = ((vector01.x > 0 && vector01.y < 0) || (vector01.x < 0 && vector01.y > 0) ? -1 : 1) * rotateZAngle
+    const rotateX = (vector12.z > 0 ? 1 : -1) * rotateXAngle
+    const rotateY = (vector01.z < 0 ? 1 : -1) * rotateYAngle
+    const rotateZ = ((vector01.x > 0 && vector01.y < 0) || (vector01.x < 0 && vector01.y > 0) ? -1 : 1) * rotateZAngle
 
-    css3DObject.rotateOnWorldAxis(new Vector3(1, 0, 0), rolateX) // x
-    css3DObject.rotateOnWorldAxis(new Vector3(0, 1, 0), rolateY) // y
-    css3DObject.rotateOnWorldAxis(new Vector3(0, 0, 1), rolateZ) // z
+    css3DObject.rotateOnWorldAxis(new Vector3(1, 0, 0), rotateX) // x
+    css3DObject.rotateOnWorldAxis(new Vector3(0, 1, 0), rotateY) // y
+    css3DObject.rotateOnWorldAxis(new Vector3(0, 0, 1), rotateZ) // z
 
     css3DObject.position.set(centerPosition.x, centerPosition.y, centerPosition.z)
 

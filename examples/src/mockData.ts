@@ -10,9 +10,16 @@ import openData from "https://cdn.skypack.dev/@realsee/open-works/virtual/81gmMq
 
 const { work, floorplanServerData, modelRoomLabels, modelEntryDoorGuidePluginServerData } = openData
 
+// @ts-ignore
+import {work as Newwork} from "https://cdn.skypack.dev/@realsee/open-works/virtual/81RojBlJQdVTglNNMr/work.js";
+
+
 export {
+    Newwork,
     work,
     floorplanServerData,
     modelRoomLabels,
     modelEntryDoorGuidePluginServerData
 }
+
+

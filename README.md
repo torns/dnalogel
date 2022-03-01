@@ -1,6 +1,6 @@
 # getting start
 
-## 开发环境
+## 插件开发
 
 1、启动 lerna 包管理，进行包的安装即依赖处理
 ```bash
@@ -24,8 +24,25 @@ yarn start:examples
 yarn docs
 ```
 
-## examples 部署上线
 
+## 测试/上线部署
+
+静态资源构建
+1、启动 lerna 包管理，进行包的安装即依赖处理
 ```bash
-yarn start
+yarn bootstrap
+```
+
+2、启动插件打包
+```bash
+yarn start:plugins
+```
+
+3、
+```bash
+#进入静态资源目录
+cd online
+
+#开启http服务，以下启动服务的方式可被替换
+python -m SimpleHTTPServer
 ```

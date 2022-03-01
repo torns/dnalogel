@@ -35,10 +35,10 @@ yarn bootstrap
 
 2、启动插件打包
 ```bash
-yarn start:plugins
+yarn build
 ```
 
-3、
+3、测试
 ```bash
 #进入静态资源目录
 cd online

@@ -7,7 +7,7 @@ import DirectionsWalkIcon from "@mui/icons-material/DirectionsWalk";
 import ViewInArIcon from "@mui/icons-material/ViewInAr";
 
 // 朝南方向来源于户型图数据
-const NORTH_RAD = floorplanServerData.computed_data.entrance.north_rad
+const NORTH_RAD = floorplanServerData?.computed_data?.entrance?.north_rad
 
 const ModelChassisCompassPluginUse: React.FC = () => {
     const [fiveState, setFiveState] = useFiveState();

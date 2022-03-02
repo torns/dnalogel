@@ -9,6 +9,7 @@ export default defineConfig({
   plugins: [react()],
   build: {
     // assetsDir: '../assets',
+    target: 'esnext',
     outDir: '../online',
     rollupOptions: {
       input: {

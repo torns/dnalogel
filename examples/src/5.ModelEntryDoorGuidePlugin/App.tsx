@@ -8,8 +8,8 @@ import ModelEntryDoorGuidePluginUse from "./ModelEntryDoorGuidePluginUse";
 
 const ModelEntryDoorGuidePluginParameter = {
   fbx_url: '//vrlab-image4.ljcdn.com/release/web/entryDoorMini/Anim_Door1.fbx',
-  position: modelEntryDoorGuidePluginServerData.position,
-  rad: modelEntryDoorGuidePluginServerData.rad,
+  position: modelEntryDoorGuidePluginServerData?.position,
+  rad: modelEntryDoorGuidePluginServerData?.rad,
   animationEnabled: true,
 }
 

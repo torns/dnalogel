@@ -4,6 +4,11 @@
  * 不可商用！！！
  * */
 
+import { Work } from '@realsee/five'
+import { FloorplanServerData} from "@realsee/dnalogel/libs/floorplan/typings/floorplanServerData";
+import { ModelRoomLabelPluginData} from "@realsee/dnalogel/libs/ModelRoomLabelPlugin/typings";
+import { ModelEntryDoorGuidePluginData } from '@realsee/dnalogel/libs/ModelEntryDoorGuidePlugin'
+
 import getQueryValueByName from "./utils/getQueryValueByName";
 
 // 根据不同的 query 参数，获取不同版本的数据
@@ -18,10 +23,10 @@ const floorplanServerDataUrl = `//unpkg.com/@realsee/open-works@0.1.0-alpha.3/vi
 const modelRoomLabelsUrl = `//unpkg.com/@realsee/open-works@0.1.0-alpha.3/virtual/${dataCode}/modelRoomLabels.json`
 const modelEntryDoorGuidePluginServerDataUrl = `//unpkg.com/@realsee/open-works@0.1.0-alpha.3/virtual/${dataCode}/modelEntryDoorGuidePluginServerData.json`
 
-let work = null
-let floorplanServerData = null
-let modelRoomLabels = null
-let modelEntryDoorGuidePluginServerData = null
+let work: Work | null = null
+let floorplanServerData: FloorplanServerData | null = null
+let modelRoomLabels: ModelRoomLabelPluginData | null = null
+let modelEntryDoorGuidePluginServerData: ModelEntryDoorGuidePluginData | null = null
 
 
 await fetch(workUrl).then((res) => res.json()).then(res => work = res).catch(e => console.warn('拉取 work 数据失败'))

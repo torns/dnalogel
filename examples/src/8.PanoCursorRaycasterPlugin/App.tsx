@@ -4,7 +4,7 @@ import React, { FC } from "react";
 import { useWindowDimensions } from "./useWindowDimensions";
 
 
-import { Newwork } from '../mockData'
+import { work } from '../mockData'
 import { Box } from "@mui/material";
 import PanoCursorRaycasterPluginUse from "./PanoCursorRaycasterPluginUse";
 import { parseWork } from "@realsee/five";
@@ -27,7 +27,7 @@ const App: FC = () => {
       () => true
   )
 
-  return Newwork && <FiveProvider initialWork={parseWork(Newwork)} ref={ref => Object.assign(window, {$five: ref?.five})}>
+  return work && <FiveProvider initialWork={parseWork(work)} ref={ref => Object.assign(window, {$five: ref?.five})}>
     <FiveCanvas {...size}/>
     <PluginFullScreenContainer/>
     <PanoCursorRaycasterPluginUse/>

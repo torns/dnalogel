@@ -4,22 +4,36 @@
  * 不可商用！！！
  * */
 
-// @ts-ignore
-// import { work, floorplanServerData, modelRoomLabels } from "https://cdn.skypack.dev/@realsee/open-works/virtual/81gmMq5a7zbF9leWMk/index";
-import openData from "https://cdn.skypack.dev/@realsee/open-works/virtual/81gmMq5a7zbF9leWMk/index";
+import getQueryValueByName from "./utils/getQueryValueByName";
 
-const { work, floorplanServerData, modelRoomLabels, modelEntryDoorGuidePluginServerData } = openData
+// 根据不同的 query 参数，获取不同版本的数据
+const defaultRenderCode = '81gmMq5a7zbF9leWMk'
 
-// @ts-ignore
-import {work as Newwork} from "https://cdn.skypack.dev/@realsee/open-works/virtual/81RojBlJQdVTglNNMr/work.js";
+const dataReq = getQueryValueByName('renderCode')
+const dataCode = dataReq ? dataReq : defaultRenderCode
+
+// 从 github 拉取开源 json 数据
+const workUrl = `//unpkg.com/@realsee/open-works@0.1.0-alpha.3/virtual/${dataCode}/work.json`
+const floorplanServerDataUrl = `//unpkg.com/@realsee/open-works@0.1.0-alpha.3/virtual/${dataCode}/floorplanServerData.json`
+const modelRoomLabelsUrl = `//unpkg.com/@realsee/open-works@0.1.0-alpha.3/virtual/${dataCode}/modelRoomLabels.json`
+const modelEntryDoorGuidePluginServerDataUrl = `//unpkg.com/@realsee/open-works@0.1.0-alpha.3/virtual/${dataCode}/modelEntryDoorGuidePluginServerData.json`
+
+let work = null
+let floorplanServerData = null
+let modelRoomLabels = null
+let modelEntryDoorGuidePluginServerData = null
+
+
+await fetch(workUrl).then((res) => res.json()).then(res => work = res)
+await fetch(floorplanServerDataUrl).then((res) => res.json()).then(res => floorplanServerData = res)
+await fetch(modelRoomLabelsUrl).then((res) => res.json()).then(res => modelRoomLabels = res)
+await fetch(modelEntryDoorGuidePluginServerDataUrl).then((res) => res.json()).then(res => modelEntryDoorGuidePluginServerData = res)
 
 
 export {
-    Newwork,
     work,
     floorplanServerData,
     modelRoomLabels,
     modelEntryDoorGuidePluginServerData
 }
-
 

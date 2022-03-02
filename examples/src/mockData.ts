@@ -24,10 +24,10 @@ let modelRoomLabels = null
 let modelEntryDoorGuidePluginServerData = null
 
 
-await fetch(workUrl).then((res) => res.json()).then(res => work = res)
-await fetch(floorplanServerDataUrl).then((res) => res.json()).then(res => floorplanServerData = res)
-await fetch(modelRoomLabelsUrl).then((res) => res.json()).then(res => modelRoomLabels = res)
-await fetch(modelEntryDoorGuidePluginServerDataUrl).then((res) => res.json()).then(res => modelEntryDoorGuidePluginServerData = res)
+await fetch(workUrl).then((res) => res.json()).then(res => work = res).catch(e => console.warn('拉取 work 数据失败'))
+await fetch(floorplanServerDataUrl).then((res) => res.json()).then(res => floorplanServerData = res).catch(e => console.warn('拉取 floorplanServerData 数据失败或不含此数据源'))
+await fetch(modelRoomLabelsUrl).then((res) => res.json()).then(res => modelRoomLabels = res).catch(e => console.warn('拉取 modelRoomLabels 数据失败或不含此数据源'))
+await fetch(modelEntryDoorGuidePluginServerDataUrl).then((res) => res.json()).then(res => modelEntryDoorGuidePluginServerData = res).catch(e => console.warn('拉取 modelEntryDoorGuidePluginServerData 数据失败或不含此数据源'))
 
 
 export {

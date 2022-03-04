@@ -6,16 +6,23 @@ import { useWindowDimensions } from "./useWindowDimensions";
 import TopviewFloorplanPluginUse from "./TopviewFloorplanPluginUse";
 import { Box } from '@mui/material'
 import { work } from '../mockData'
+import getInitialParamFromUrl from "../utils/getInitialParamFromUrl";
+
+const defaultPluginParam = {
+    selector: '.plugin-full-screen-container',
+    hoverEnable: true
+}
+
+const initialParamFromUrl = getInitialParamFromUrl()
+
+const pluginParams = (JSON.stringify(initialParamFromUrl) !== '{}') ? initialParamFromUrl : defaultPluginParam
 
 const FiveProvider = createFiveProvider({
     plugins: [
         [
             TopviewFloorplanPlugin,
             'topviewFloorplanPlugin',
-            {
-                selector: '.plugin-full-screen-container',
-                hoverEnable: true
-            }
+            { ...pluginParams }
         ]
     ]
 });
@@ -31,7 +38,7 @@ const App: FC = () => {
         () => true
     )
 
-    return work && <FiveProvider initialWork={parseWork(work)}>
+    return work && <FiveProvider initialWork={parseWork(work)} ref={ref => Object.assign(window, { $five: ref?.five })}>
 		<FiveCanvas {...size} />
 		<PluginFullScreenContainer />
 		<TopviewFloorplanPluginUse />

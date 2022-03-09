@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Five, Mode } from "@realsee/five"
-import { unsafe__useFiveInstance, useFiveState } from "@realsee/five/react";
+import { unsafe__useFiveInstance, useFiveModelReadyState, useFiveState } from "@realsee/five/react";
 // import { FloorplanServerData } from "@realsee/dnalogel/libs/plugin/TopviewFloorplanPlugin"
 import { Paper, BottomNavigation, BottomNavigationAction } from '@mui/material'
 import DirectionsWalkIcon from "@mui/icons-material/DirectionsWalk";
@@ -13,11 +13,14 @@ interface TopviewFloorplanPluginUsePropTypes {}
 const TopviewFloorplanPluginUse = (props: TopviewFloorplanPluginUsePropTypes) => {
     const five = unsafe__useFiveInstance()
     const [fiveState, setFiveState] = useFiveState()
+    const fiveModelReadyState = useFiveModelReadyState()
 
     React.useEffect(() => {
         const topviewFloorplanPlugin = five.plugins.topviewFloorplanPlugin
         topviewFloorplanPlugin.load(floorplanServerData)
     }, [])
+
+    if(fiveModelReadyState !== 'Loaded') return null
 
     return (
         <Paper

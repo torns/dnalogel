@@ -9,9 +9,11 @@
   "version": "0.0.0",
   "license": "SEE LICENSE IN TERMS.txt",
   "scripts": {
-    "tsb": "tsc",
-    "build:dev": "tsc && vite build --watch",
-    "build": "tsc && vite build",
+    "test": "vite build --config ./readfiles.ts",
+    "build:dev": "yarn tsb && vite build --watch",
+    "build": "yarn tsb && vite build",
+    "tsb": "tsc && yarn build:svelte",
+    "build:svelte": "svelte-strip strip src/ libs",
     "build:docs": "typedoc --options ./typedoc.json",
     "preview": "vite preview",
     "check": "svelte-check --tsconfig ./tsconfig.json"
@@ -40,6 +42,7 @@
     "svelte": "^3.44.0",
     "svelte-check": "^2.2.7",
     "svelte-preprocess": "^4.9.8",
+    "svelte-strip": "^1.0.1",
     "three": "0.117.1",
     "tslib": "^2.3.1",
     "typedoc": "^0.22.11",

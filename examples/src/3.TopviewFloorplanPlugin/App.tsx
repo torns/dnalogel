@@ -10,7 +10,8 @@ import getInitialParamFromUrl from "../utils/getInitialParamFromUrl";
 
 const defaultPluginParam = {
     selector: '.plugin-full-screen-container',
-    hoverEnable: true
+    hoverEnable: true,
+
 }
 
 const initialParamFromUrl = getInitialParamFromUrl()

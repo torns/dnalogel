@@ -6,10 +6,24 @@ import { useWindowDimensions } from "./useWindowDimensions";
 import ModelRoomLabelPluginShow from "./ModelRoomLabelPluginShow";
 import { work } from '../mockData'
 import { Box } from "@mui/material";
+import getInitialParamFromUrl from "../utils/getInitialParamFromUrl";
+
+const defaultPluginParam = {
+
+}
+
+const initialParamFromUrl = getInitialParamFromUrl()
+
+const pluginParams = (JSON.stringify(initialParamFromUrl) !== '{}') ? initialParamFromUrl : defaultPluginParam
+
 
 const FiveProvider = createFiveProvider({
   plugins: [
-    [ModelRoomLabelPlugin, 'modelRoomLabelPlugin']
+    [
+        ModelRoomLabelPlugin,
+      'modelRoomLabelPlugin',
+      { ...pluginParams }
+    ]
   ]
 });
 

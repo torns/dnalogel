@@ -10,7 +10,7 @@ const FiveProvider = createFiveProvider({
   plugins: [
     [
       ModelViewPlugin,
-      'modelView'
+      'modelViewPlugin'
     ]
   ]
 });

@@ -29,7 +29,7 @@ const FiveProvider = createFiveProvider({
 const App: FC = () => {
   const size = useWindowDimensions();
 
-  return work && <FiveProvider initialWork={parseWork(work)}>
+  return work && <FiveProvider initialWork={parseWork(work)} ref={ref => Object.assign(window, { $five: ref?.five })}>
     <FiveCanvas {...size} />
     <PanoFloorplanRadarPanel />
   </FiveProvider>;

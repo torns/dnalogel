@@ -38,7 +38,7 @@ const App: FC = () => {
       () => true
   )
 
-  return work && <FiveProvider initialWork={parseWork(work)}>
+  return work && <FiveProvider initialWork={parseWork(work)} ref={ref => Object.assign(window, { $five: ref?.five })}>
     <FiveCanvas {...size}/>
     <PluginFullScreenContainer />
     <ModelRoomLabelPluginShow />

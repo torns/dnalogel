@@ -8,7 +8,7 @@ import PanoFloorplanRadarPanel from "./PanoFloorplanRadarPanel";
 import getInitialParamFromUrl from "../utils/getInitialParamFromUrl";
 
 const defaultPluginParam = {
-  hoverEnable: true
+
 }
 
 const initialParamFromUrl = getInitialParamFromUrl()

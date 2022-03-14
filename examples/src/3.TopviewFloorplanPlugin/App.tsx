@@ -9,9 +9,7 @@ import { work } from '../mockData'
 import getInitialParamFromUrl from "../utils/getInitialParamFromUrl";
 
 const defaultPluginParam = {
-    selector: '.plugin-full-screen-container',
-    hoverEnable: true,
-
+    hoverEnable: true
 }
 
 const initialParamFromUrl = getInitialParamFromUrl()
@@ -23,7 +21,10 @@ const FiveProvider = createFiveProvider({
         [
             TopviewFloorplanPlugin,
             'topviewFloorplanPlugin',
-            { ...pluginParams }
+            {
+                selector: '.plugin-full-screen-container',
+                ...pluginParams
+            }
         ]
     ]
 });

@@ -20,7 +20,7 @@ const TopviewFloorplanPluginUse = (props: TopviewFloorplanPluginUsePropTypes) =>
         topviewFloorplanPlugin.load(floorplanServerData)
     }, [])
 
-    if(fiveModelReadyState !== 'Loaded') return null
+
 
     return (
         <Paper

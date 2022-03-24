@@ -16,8 +16,6 @@ const initialParamFromUrl = getInitialParamFromUrl()
 const pluginParams = (JSON.stringify(initialParamFromUrl) !== '{}') ? initialParamFromUrl : defaultPluginParam
 
 
-console.log('__', pluginParams)
-
 const FiveProvider = createFiveProvider({
   plugins: [
     [

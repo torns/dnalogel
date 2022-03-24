@@ -30,7 +30,7 @@ const ModelEntryDoorGuidePluginUse: React.FC = () => {
         })
 
         // 显示入户门
-        five.plugins.modelEntryDoorGuidePlugin.enable()
+        five.plugins.modelEntryDoorGuidePlugin.enable({animationEnable: false})
     })
 
     if (fiveModelReadyState !== 'Loaded') {

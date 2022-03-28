@@ -10,7 +10,9 @@
   ],
   "scripts": {
     "start": "yarn bootstrap && yarn build:plugins && yarn start:examples",
+    "build": "yarn bootstrap && yarn build:plugins && yarn build:examples",
     "build:plugins": "cd plugins && yarn run build",
+    "build:examples": "yarn workspace examples build",
     "bootstrap": "lerna bootstrap && lerna link",
     "start:plugins": "cd plugins && yarn run build:dev",
     "start:examples": "yarn workspace examples start",

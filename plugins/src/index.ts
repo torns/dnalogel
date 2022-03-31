@@ -57,6 +57,13 @@ export { default as ModelEntryDoorGuidePlugin } from './ModelEntryDoorGuidePlugi
 
 export { default as CameraMovementPlugin } from './CameraMovementPlugin'
 
+// 全景标尺
+export type {
+   PanoRulerPluginParameterType,
+   PanoRulerPluginExportType,
+   PanoRulerPluginOptions,
+} from './PanoRulerPlugin'
+export { default as PanoRulerPlugin } from './PanoRulerPlugin'
 // 全景指南针
 export type {
   PanoCompassPluginParameterType,

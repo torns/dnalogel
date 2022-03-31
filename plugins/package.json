@@ -18,7 +18,8 @@
   },
   "files": [
     "libs",
-    "dist"
+    "dist",
+    "TERMS.txt"
   ],
   "devDependencies": {
     "@babel/core": "^7.17.5",

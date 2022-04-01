@@ -64,6 +64,7 @@ export type {
    PanoRulerPluginOptions,
 } from './PanoRulerPlugin'
 export { default as PanoRulerPlugin } from './PanoRulerPlugin'
+
 // 全景指南针
 export type {
   PanoCompassPluginParameterType,

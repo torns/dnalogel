@@ -27,11 +27,18 @@ export default function getPxmm(
             .map((ob) => ob.standingPosition.y),
         )
   }
-  const currentFloorY = getFloorY(floorIndex)
-  const nextFloorY = getFloorY(floorIndex + 1)
-  const floorY = options?.attachedTo === FLOOR_PLAN_ATTACHED_TO.CEILING ? nextFloorY : currentFloorY
-  const originPosition = new THREE.Vector3(0, floorY, 0)
-  const originPositionXUnit = new THREE.Vector3(1, floorY, 0)
+  function getY() {
+    const currentFloorY = getFloorY(floorIndex)
+    const nextFloorY = getFloorY(floorIndex + 1)
+    const attachedTo = options?.attachedTo || FLOOR_PLAN_ATTACHED_TO.BOUNDING_CENTER
+    if (attachedTo === FLOOR_PLAN_ATTACHED_TO.BOUNDING_CENTER)
+      return (five.model.bounding.max.y + five.model.bounding.min.y) / 2
+    else if (attachedTo === FLOOR_PLAN_ATTACHED_TO.CEILING) return nextFloorY
+    else return currentFloorY
+  }
+  const y = getY()
+  const originPosition = new THREE.Vector3(0, y, 0)
+  const originPositionXUnit = new THREE.Vector3(1, y, 0)
   const mouse = originPosition.clone().project(five.camera)
   const xUnitMouse = originPositionXUnit.clone().project(five.camera)
   const pxmm =

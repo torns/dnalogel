@@ -31,9 +31,9 @@ const PanoMeasurePluginUsage = (props: PanoRulerPluginUsePropTypes) => {
         setMeasureEnableBtn(false)
     }
 
-    return measureEnableBtn && (
+    return (
         <Box>
-            <Paper sx={{ position: 'fixed', top: '10px', right: '10px', backgroundColor: 'transparent' }}>
+            <Paper sx={{ display: `${measureEnableBtn ? 'block' : 'none'}`, position: 'fixed', top: '10px', right: '10px', backgroundColor: 'transparent' }}>
                 <Button onClick={handleMeasureEnable}>
                     开启测量工具
                 </Button>

@@ -11,7 +11,7 @@ export default defineConfig({
   build: {
     // assetsDir: '../assets',
     target: 'esnext',
-    outDir: '../online',
+    outDir: '../online/dnalogel',
     rollupOptions: {
       input: {
         index: resolve(__dirname, './index.html'),

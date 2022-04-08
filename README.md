@@ -33,10 +33,10 @@ yarn docs
 
 ## 测试/上线部署
 
-执行 `make`
-
 ```bash
-make
-```
+#进入静态资源目录
+cd online
 
-稍后即可在 http://localhost:3000/dnalogel/ 看到内容
+#开启http服务，以下启动服务的方式可被替换
+python -m SimpleHTTPServer
+```

@@ -33,22 +33,10 @@ yarn docs
 
 ## 测试/上线部署
 
-静态资源构建
-1、启动 lerna 包管理，进行包的安装即依赖处理
+执行 `make`
+
 ```bash
-yarn bootstrap
+make
 ```
 
-2、启动插件打包
-```bash
-yarn build
-```
-
-3、测试
-```bash
-#进入静态资源目录
-cd online
-
-#开启http服务，以下启动服务的方式可被替换
-python -m SimpleHTTPServer
-```
+稍后即可在 http://localhost:3000/dnalogel/ 看到内容

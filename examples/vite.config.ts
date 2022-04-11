@@ -22,7 +22,7 @@ export default defineConfig({
         ModelChassisCompassPlugin: resolve(__dirname, './src/ModelChassisCompassPlugin/index.html'),
         ModelEntryDoorGuidePlugin: resolve(__dirname, './src/ModelEntryDoorGuidePlugin/index.html'),
         CSS3DRenderPlugin: resolve(__dirname, './src/CSS3DRenderPlugin/index.html'),
-        ModelEntryDoorGuCameraMovementPluginidePlugin: resolve(__dirname, './src/CameraMovementPlugin/index.html'),
+        CameraMovementPlugin: resolve(__dirname, './src/CameraMovementPlugin/index.html'),
         ModelFloorplanPlugin: resolve(__dirname, './src/ModelFloorplanPlugin/index.html'),
         PanoCompassPlugin: resolve(__dirname, './src/PanoCompassPlugin/index.html'),
         PanoRulerPlugin: resolve(__dirname, './src/PanoRulerPlugin/index.html'),

@@ -41,4 +41,4 @@ cd online
 python -m SimpleHTTPServer
 ```
 
-访问链接: 
+访问链接: http://localhost:8000/dnalogel/

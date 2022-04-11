@@ -101,6 +101,8 @@ export default class PanoFloorplanRadarPluginController {
       })
       return
     }
+
+    console.log("__debug__", props)
     this.app.$set(props)
   }
 }

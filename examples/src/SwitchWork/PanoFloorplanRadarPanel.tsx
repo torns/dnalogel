@@ -1,15 +1,25 @@
 import * as React from "react";
-import {unsafe__useFiveInstance, useFiveState} from "@realsee/five/react";
+import {
+    unsafe__useFiveInstance,
+    useFiveEventCallback,
+    useFiveModelReadyState,
+    useFiveState
+} from "@realsee/five/react";
 import { Box } from '@mui/material'
 import { floorplanServerData, newData } from "../mockData";
 import { Five } from "@realsee/five";
 
-const PanoFloorplanRadarPanel: React.FC = () => {
+interface PanoFloorplanRadarPanel {
+    floorplanData: any
+}
+
+const PanoFloorplanRadarPanel = (props: PanoFloorplanRadarPanel) => {
     const [fiveState, setFiveState] = useFiveState();
     const five = unsafe__useFiveInstance()
     const panoFloorplanRadarPanelRef = React.useRef<HTMLDivElement>(null)
     const [visible, setVisible] = React.useState<boolean>(false)
     const [data, setData] = React.useState(floorplanServerData)
+    // const modelReadyState = useFiveModelReadyState()
 
     React.useEffect(() => {
         if (!panoFloorplanRadarPanelRef.current || fiveState.mode !== Five.Mode.Panorama) return
@@ -17,10 +27,16 @@ const PanoFloorplanRadarPanel: React.FC = () => {
         // five.plugins.panoFloorplanRadarPlugin.load(floorplanServerData)
     }, [])
 
-    React.useEffect(() => {
-        if (!panoFloorplanRadarPanelRef.current || fiveState.mode !== Five.Mode.Panorama) return
-        five.plugins.panoFloorplanRadarPlugin.load(data)
-    }, [data])
+
+    useFiveEventCallback("modelLoaded", () => {
+        console.log('modelLoaed', props.floorplanData)
+        five.plugins.panoFloorplanRadarPlugin.load(props.floorplanData)
+    }, [props.floorplanData])
+
+    // React.useEffect(() => {
+    //     if (!panoFloorplanRadarPanelRef.current || fiveState.mode !== Five.Mode.Panorama) return
+    //     five.plugins.panoFloorplanRadarPlugin.load(data)
+    // }, [data])
 
     React.useEffect(() => {
         if (fiveState.mode === Five.Mode.Panorama) {

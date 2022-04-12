@@ -75,7 +75,7 @@ export type {
 } from './PanoCompassPlugin'
 export { default as PanoCompassPlugin } from './PanoCompassPlugin'
 
-// pc 全景标尺
+// pc 全景测量工具
 export type {
     PluginReturns,
     PluginEvent,

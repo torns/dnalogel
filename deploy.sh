@@ -3,7 +3,7 @@
 # 发生错误时终止
 set -e
 
-#rm -rf online
+rm -rf online
 
 # 构建
 yarn run build:examples
@@ -14,8 +14,8 @@ cd online/dnalogel
 # 如果你要部署到自定义域名
 # echo 'www.example.com' > CNAME
 
-#git init
-git checkout main
+git init
+git checkout -b main
 git add -A
 git commit -m 'deploy'
 

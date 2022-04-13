@@ -15,6 +15,7 @@ dist-ssr
 package-lock.json
 yarn.lock
 online
+test
 
 # Editor directories and files
 .vscode/*

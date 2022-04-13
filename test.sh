@@ -4,6 +4,7 @@
 set -e
 
 rm -rf online
+rm -rf test
 
 # 构建
 yarn run build:examples
@@ -27,6 +28,6 @@ git commit -m 'test'
 # git push -f git@github.com:<USERNAME>/<USERNAME>.github.io.git main
 
 # 如果你要部署在 https://<USERNAME>.github.io/<REPO>
-git push -f git@github.com:realsee-developer/dnalogel.git main:test
+git push -f git@github.com:realsee-developer/dnalogel.git main:online
 
 cd -

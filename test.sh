@@ -4,6 +4,7 @@
 set -e
 
 rm -rf online
+rm -rf test
 
 # 构建
 yarn run build:examples

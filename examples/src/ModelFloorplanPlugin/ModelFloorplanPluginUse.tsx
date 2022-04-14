@@ -20,7 +20,7 @@ const ModelFloorplanPluginUse = (props: ModelFloorplanPluginUsePropTypes) => {
 
     useFiveEventCallback("modelLoaded", () => {
         Promise.resolve(five.plugins.modelFloorplanPlugin.load(floorplanServerData)).then(() => {
-            five.plugins.modelFloorplanPlugin.show()
+            // five.plugins.modelFloorplanPlugin.show()
         })
     })
 

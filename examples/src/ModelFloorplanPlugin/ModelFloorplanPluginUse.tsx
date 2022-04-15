@@ -18,15 +18,29 @@ const ModelFloorplanPluginUse = (props: ModelFloorplanPluginUsePropTypes) => {
     const [fiveState, setFiveState] = useFiveState()
     const fiveModelReadyState = useFiveModelReadyState()
     const floorplanServerData = useFetchDatas(DATATYPES.FLOOR_PLAN_SERVER_PLUGIN_DATA)
+    const [hideFloorplan, setHideFloorplan] = React.useState<boolean>(true)
+
+    // 插件事件监听
+    React.useEffect(() => {
+        five.plugins.modelFloorplanPlugin.hooks.on('showAnimationEnded', () => {
+            console.log('🐶-- ModelFloorplanPlugin -- show')
+            setHideFloorplan(false)
+        })
+        five.plugins.modelFloorplanPlugin.hooks.on('hide', () => {
+            console.log('🐶-- ModelFloorplanPlugin -- hide')
+            setHideFloorplan(true)
+        })
+    }, [five])
 
     useFiveEventCallback("modelLoaded", () => {
         if(!floorplanServerData || JSON.stringify(floorplanServerData) === '{}') return
         Promise.resolve(five.plugins.modelFloorplanPlugin.load(floorplanServerData)).then(() => {
-            // five.plugins.modelFloorplanPlugin.show()
+            five.plugins.modelFloorplanPlugin.show()
         })
     }, [floorplanServerData])
 
     useFiveEventCallback("initAnimationEnded", () => {
+        if (hideFloorplan) return
         if (fiveState.mode === Five.Mode.Floorplan) {
             five.plugins.modelFloorplanPlugin.show()
         }

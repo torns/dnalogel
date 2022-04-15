@@ -8,9 +8,10 @@
   "version": "2.0.0-alpha.7",
   "license": "SEE LICENSE IN TERMS.txt",
   "scripts": {
-    "build:dev": "yarn tsb && vite build --watch",
+    "build:devs": "yarn tsb && vite build",
+    "build:dev": "yarn build:svelte && tsc --watch",
     "build": "yarn tsb && vite build",
-    "tsb": "tsc && yarn build:svelte",
+    "tsb": "tsc -watch && yarn build:svelte",
     "build:svelte": "svelte-strip strip src/ libs",
     "build:docs": "typedoc --options ./typedoc.json",
     "preview": "vite preview",

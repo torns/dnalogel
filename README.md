@@ -52,6 +52,13 @@ yarn build
 npm publish
 ```
 
+## 示例发布
+
+```bash
+yarn deploy
+```
+
+进入 https://realsee.js.org/dnalogel/ 查看是否发布成功。
 
 ## 测试/上线部署
 

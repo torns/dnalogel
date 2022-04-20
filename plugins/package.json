@@ -10,7 +10,6 @@
   "license": "SEE LICENSE IN TERMS.txt",
   "scripts": {
     "build": "yarn run tsb && yarn run build:rollup && yarn build:docs",
-    "builds": "yarn tsb && vite build && yarn build:docs",
     "build:dev": "yarn build:svelte && tsc --watch",
     "build:rollup": " rollup --config rollup.config.js",
     "tsb": "tsc && yarn build:svelte && ./bin/svelte-compile.js",

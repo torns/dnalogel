@@ -83,3 +83,11 @@ export type {
     PointJson
 } from './PanoMeasurePlugin'
 export { default as PanoMeasurePlugin } from './PanoMeasurePlugin'
+
+
+//温度仿真工具
+export type {
+	ModelSimulationPluginExportType,
+	ModelSimulationPluginParameterType,
+} from './ModelSimulationPlugin'
+export { default as ModelSimulationPlugin} from './ModelSimulationPlugin'

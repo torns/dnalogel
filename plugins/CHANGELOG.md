@@ -1,5 +1,8 @@
 # CHANGELOG
 
+## 2.0.0-alpha.13
+- 1.chore: 修改 tsconfig.json target 配置项为 es6。
+
 ## 2.0.0-alpha.12
 - 1.feat: 新增 ModelItemLabelPlugin
 

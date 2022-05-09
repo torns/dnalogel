@@ -6,6 +6,7 @@
     import * as THREE from 'three'
     import ItemLabelItem from './ItemLabelItem.svelte'
     import { PluginEvent } from "./events.type";
+    import debounce from '../shared-utils/debounce'
 
     const { Raycaster, Vector3 } = THREE
 
@@ -29,48 +30,14 @@
     let cssHeight: number = 26
     let basicWidth: number = 11
 
+    // 动画过程中 itemsVisible 为 false
+    let itemsVisible = true
+
     /**
      * 可见性策略：
      * 1、当前楼层(假设先不考虑多楼层)
      * 2、模型未被遮挡（一个 box 有没有被遮挡的计算？ TODO）
      * */
-    // 画辅助线
-    function addHelper(x: number, y: number, z: number, type: string, helper?: boolean) {
-        let geometry, materials, mesh: any
-
-        if (type === 'box') {
-            geometry = new THREE.BoxGeometry(
-                0.6,
-                2.5,
-                1.010696,
-            )
-
-            let mats = []
-            for (let i = 0; i < geometry.faces.length; i++) {
-                const material = new THREE.MeshBasicMaterial({
-                    color: new THREE.Color(Math.random() * 0xffffff)
-                })
-                mats.push(material)
-            }
-            materials = mats
-        } else if (type === 'ball') {
-            geometry = new THREE.SphereGeometry(0.02, 0.02, 64);
-            materials = new THREE.MeshBasicMaterial({
-                color: new THREE.Color(0xffffff)
-            })
-        }
-        mesh = new THREE.Mesh(geometry, materials)
-        // y 轴需要加一半的高度，因为position是从地面开始的，或者我应该算偏移更合理
-        mesh.position.set(x, y, z)
-
-        if (helper) {
-            const helper = new THREE.AxesHelper(5);
-            mesh.add(helper)
-        }
-
-        five.scene.add(mesh);
-
-    }
 
     const getLabelVisible = (five: Five, itemLabel: ItemLabel) => {
         // 虚拟 VR 仅有一层，不考虑楼层信息
@@ -170,9 +137,18 @@
         renderItemLabels = itemLabels
         curItemLabels = itemLabels
         onItemLabelUpdate()
-        // five.on('cameraUpdate', onItemLabelUpdate)
         addResizeListener()
+
+	    five.on('cameraUpdate', () => {
+            itemsVisible = false
+            handleCameraUpdate()
+	    })
     })
+
+    const handleCameraUpdate = debounce(() => {
+        itemsVisible = true
+        onItemLabelUpdate()
+    }, 300)
 
     const addResizeListener = () => {
         wrapperSize = {
@@ -186,7 +162,6 @@
         if (curItemLabels !== itemLabels) {
             renderItemLabels = itemLabels
             curItemLabels = itemLabels
-            console.log('--debug--update--')
             onItemLabelUpdate()
         }
     }
@@ -207,7 +182,7 @@
     })
 
     onDestroy(() => {
-        // five.off('cameraUpdate', onItemLabelUpdate)
+        five.off('cameraUpdate')
         resizeObserver.unobserve(wrapper)
         curItemLabels = null
         renderItemLabels = null
@@ -217,7 +192,7 @@
 
 </script>
 
-<div class="item-labels-container" bind:clientWidth="{containerWidth}" bind:clientHeight="{containerHeight}">
+<div class="item-labels-container" bind:clientWidth="{containerWidth}" bind:clientHeight="{containerHeight}" style:opacity="{itemsVisible ? 1 : 0}">
 	{#each renderItemLabels as itemLabelItem (itemLabelItem.id)}
 		<ItemLabelItem itemLabel="{itemLabelItem}" hooks="{hooks}" />
 	{/each}

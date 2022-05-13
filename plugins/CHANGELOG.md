@@ -1,5 +1,8 @@
 # CHANGELOG
 
+## 2.0.0-alpha.18
+- 1.fix: 修复 PanoMeasurePlugin 使用时 hammerjs 报错问题。
+
 ## 2.0.0-alpha.17
 - 1.fix: 修复构建输出 px2rem 失效问题。
 

@@ -3,7 +3,7 @@ import type { FloorplanEventHandlers } from './typings/events.type'
 import type { FloorplanServerData } from '../typings/floorplanServerData'
 import type { FloorplanData, FloorplanRoomItem } from '../typings/floorplanData'
 import { omit } from '../../shared-utils/filter'
-import { Five, EventCallback, Subscribe } from '@realsee/five'
+import { Five, EventCallback, Subscribe, Pose } from '@realsee/five'
 import { FloorplanErrorType, FIVE_CAMERA_DEFAULT_FOV, SHOW_ANIME_DURATION } from './utils/constant'
 import to from '../../shared-utils/to'
 import Main from '../Components/Main.svelte'
@@ -27,9 +27,7 @@ export interface ModelFloorplanParameterType {
   attachedTo?: FLOOR_PLAN_ATTACHED_TO
   getLabelElement?: (room: FloorplanRoomItem) => Element | null
 }
-
 export type ModelFloorplanPluginsConfigs = Omit<ModelFloorplanParameterType, 'selector' | 'scale'>
-
 export interface ModelFloorplanPluginsShowOpts {
   floorIndex?: number
   isAutoShow?: boolean
@@ -37,6 +35,31 @@ export interface ModelFloorplanPluginsShowOpts {
   immediately?: boolean
   userAction?: boolean
 }
+
+/** 当前 five 的相机视角是否满足户型图自动隐藏条件
+ *
+ * @description 水平旋转角大于正负 5 度 || 俯仰角度大于 5 度
+ *
+ */
+ function shouldFloorplanHideWithPose(pose: Pose) {
+  const { latitude, longitude } = pose
+  const latitudeHide = Math.abs(latitude - Math.PI / 2) > (5 * Math.PI) / 180
+  const longitudeHide = longitude > 5 * (Math.PI / 180) && longitude < 355 * (Math.PI / 180)
+  return latitudeHide || longitudeHide
+}
+
+/** 当前 five 的相机视角是否满足户型图自动展示隐藏条件
+ *
+ * @description 水平旋转角正负 30 度 && 俯仰角度小于 10 度
+ *
+ */
+function shouldFloorplanShowWithPose(pose: Pose) {
+  const { latitude, longitude } = pose
+  const latitudeVisible = Math.abs(latitude - Math.PI / 2) < (10 * Math.PI) / 180
+  const longitudeVisible = longitude < 30 * (Math.PI / 180) || longitude > 330 * (Math.PI / 180)
+  return latitudeVisible && longitudeVisible
+}
+
 export const MODEL_FLOORPLAN_PLUGIN_NAME = 'modelFloorplanPlugin'
 
 export default class ModelFloorplanPluginController {
@@ -49,7 +72,6 @@ export default class ModelFloorplanPluginController {
   public size = { width: 0, height: 0 }
 
   private app?: Main = undefined
-  private pxmm = 0
   private five: Five
   private panoIndex = 0
   private floorIndex = 0
@@ -70,7 +92,11 @@ export default class ModelFloorplanPluginController {
     this.hooks = new Subscribe()
     this.selector = params.selector
     this.configs = omit(params, ['selector'])
-    this.showState = { longitude: 0, latitude: Math.PI / 2, fov: FIVE_CAMERA_DEFAULT_FOV / (params?.scale ?? 1) }
+    this.showState = {
+      longitude: 0,
+      latitude: Math.PI / 2,
+      fov: FIVE_CAMERA_DEFAULT_FOV / (params?.scale ?? 1),
+    }
 
     // 设置 container 样式
     this.container.classList.add('floorplan-plugin')
@@ -84,13 +110,17 @@ export default class ModelFloorplanPluginController {
 
     this.five.addExtraElement(this.container)
     // 如果初始化的时候模型已经加载完毕了，就不用再等 modelLoaded
-    this.five.model.loaded ? this.handleModelLoaded() : five.once('modelLoaded', this.handleModelLoaded)
+    this.five.model.loaded
+      ? this.handleModelLoaded()
+      : five.once('modelLoaded', this.handleModelLoaded)
 
     five.once('dispose', this.dispose)
     five.on('modeChange', this.handleModeChange)
+    five.on('interiaPan', this.handleInteriaPan)
     five.on('panoArrived', this.handlePanoArrived)
+    five.on('cameraUpdate', this.handleCameraUpdate)
     five.on('wantsChangeMode', this.handleWantsChangeMode)
-    five.on('wantsInteriaPan', this.handleWantsInteriaPan)
+    five.on('wantsPanGesture', this.handleWantsPanGesture)
     five.on('modelShownFloorChange', this.onModelShownFloorChange)
   }
 
@@ -99,12 +129,13 @@ export default class ModelFloorplanPluginController {
     this.hide()
     this.app?.$destroy()
     this.container?.remove()
-    five.off('modelLoaded', this.handleModelLoaded)
     five.off('modeChange', this.handleModeChange)
-    five.off('panGesture', this.handlePanGesture)
+    five.off('interiaPan', this.handleInteriaPan)
     five.off('panoArrived', this.handlePanoArrived)
+    five.off('modelLoaded', this.handleModelLoaded)
+    five.off('cameraUpdate', this.handleCameraUpdate)
     five.off('wantsChangeMode', this.handleWantsChangeMode)
-    five.off('wantsInteriaPan', this.handleWantsInteriaPan)
+    five.off('wantsPanGesture', this.handleWantsPanGesture)
     five.off('wantsTapGesture', this.handleWantsTapGesture)
     five.off('modelShownFloorChange', this.onModelShownFloorChange)
   }
@@ -138,7 +169,6 @@ export default class ModelFloorplanPluginController {
     const _width = Math.ceil(width * pxmm)
     const _height = Math.ceil(height * pxmm)
     if (this.size.width === _width && this.size.height === _height) return
-    this.pxmm = pxmm
     this.size = { width: _width, height: _height }
     this.container.style.width = _width + 'px'
     this.container.style.height = _height + 'px'
@@ -160,12 +190,12 @@ export default class ModelFloorplanPluginController {
     if (!this.showPromise && this.visible) return true
     if (!this.five.model?.loaded) throw new Error(FloorplanErrorType.ModelNotLoaded)
     if (!this.floorplanData) throw new Error(FloorplanErrorType.DataNotLoaded)
-    this.visible = true
 
     if (this.showPromise) {
       const sameWithLastOpts = equal(opts, this.ModelFloorplanPluginsShowOpts, { deep: false })
       if (!!this.showPromise && sameWithLastOpts) return this.showPromise
-      if (!!this.showPromise && !sameWithLastOpts) this.showRejection?.(FloorplanErrorType.DifferentShowParams)
+      if (!!this.showPromise && !sameWithLastOpts)
+        this.showRejection?.(FloorplanErrorType.DifferentShowParams)
     }
 
     this.ModelFloorplanPluginsShowOpts = opts
@@ -174,17 +204,19 @@ export default class ModelFloorplanPluginController {
       let hasRejected = false
       let externalErrorMsg: string | undefined
       this.showRejection = (errorMsg?: string) => {
+        this.showPromise = undefined
         hasRejected = true
         externalErrorMsg = errorMsg
       }
       const [correctError] = await to(correctFiveState(this.five, this.showState, opts?.userAction))
       if (correctError) throw correctError
-      // 异步结束要判断当前是不是被中断了，是不是调用了隐藏
-      if (hasRejected) throw externalErrorMsg ? new Error(externalErrorMsg) : new Error(FloorplanErrorType.UnknownError)
-      if (!this.visible) throw new Error(FloorplanErrorType.UnknownError)
+      // 异步结束要判断当前是不是被中断了
+      if (hasRejected)
+        throw externalErrorMsg
+          ? new Error(externalErrorMsg)
+          : new Error(FloorplanErrorType.UnknownError)
+      
 
-      // 更新户型图状态
-      this.visible = true
       // 更新户型图大小
       this.updateSize()
       // 高亮当前楼层，有两个目的
@@ -192,7 +224,8 @@ export default class ModelFloorplanPluginController {
       // 2. 当前楼层比较小时，户型图也比较小，如果展示全部楼层，会展示户型图外有一圈模型
       if (opts?.floorIndex) this.floorIndex = opts.floorIndex
       this.five.model.show(this.floorIndex)
-
+      // 更新户型图状态
+      this.visible = true
       // 模型消失, 渲染户型图
       const modelOpacity = opts?.modelOpacity ?? this.configs.modelOpacity ?? 1
       const renderDuration = opts?.immediately ? 0 : SHOW_ANIME_DURATION
@@ -207,7 +240,10 @@ export default class ModelFloorplanPluginController {
     }
     const showPromise = getShowPromise()
       .then((): boolean => {
-        this.hooks.emit('showAnimationEnded', { auto: !!opts?.isAutoShow, userAction: opts?.userAction ?? true })
+        this.hooks.emit('showAnimationEnded', {
+          auto: !!opts?.isAutoShow,
+          userAction: opts?.userAction ?? true,
+        })
         return true
       })
       .catch((error: Error): boolean => {
@@ -237,6 +273,7 @@ export default class ModelFloorplanPluginController {
 
     this.visible = false
     this.showRejection?.(FloorplanErrorType.BreakOffByHide)
+    this.showPromise = undefined
     changeModelCanvasOpacity(this.five, 1, 0)
     this.render()
 
@@ -271,14 +308,15 @@ export default class ModelFloorplanPluginController {
   private handleModelLoaded = () => {
     if (this.wrapper) return
     if (!this.selector) return
-    const wrapper = this.selector instanceof Element ? this.selector : document.querySelector(this.selector)
+    const wrapper =
+      this.selector instanceof Element ? this.selector : document.querySelector(this.selector)
     if (!wrapper) throw new Error('不正确的父容器选择器')
 
     this.wrapper = wrapper
     wrapper.append(this.container)
   }
 
-  private handleClick = (): false | void => {
+  private handleClick = (): false | undefined => {
     if (!this.visible) return
     const prevented = this.hooks.emit('click')
     if (prevented) return false
@@ -294,14 +332,9 @@ export default class ModelFloorplanPluginController {
     if (mode !== 'Floorplan') this.hide()
   }
 
-  /** 监听模型态变化，只有在模型态才进行手势动作监听 */
+  /** changeMode 隐藏户型图 */
   private handleModeChange: EventCallback['modeChange'] = (mode) => {
-    if (mode === 'Floorplan') {
-      this.five.on('panGesture', this.handlePanGesture)
-    } else {
-      this.hide()
-      this.five.off('panGesture', this.handlePanGesture)
-    }
+    if (mode !== 'Floorplan') this.hide()
   }
 
   /** panoIndex 改变时，更新 floorIndex */
@@ -311,11 +344,6 @@ export default class ModelFloorplanPluginController {
     this.floorIndex = this.five.work.observers[index].floorIndex
   }
 
-  /** 当户型图正在展示中的时候禁用惯性 */
-  private handleWantsInteriaPan: EventCallback['wantsInteriaPan'] = () => {
-    if (this.visible) return false
-  }
-
   /** 在户型图展示时阻止多指操作, 阻止鼠标放大 */
   private handleWantsGesture: EventCallback['wantsGesture'] = (type, pointers) => {
     if (!this.visible) return
@@ -323,45 +351,51 @@ export default class ModelFloorplanPluginController {
     if (type === 'mouseWheel') return false
   }
 
-  /** 监听三维模型滑动
-   * 1. 在三维模型转动结束时，如果达到设置的阈值，会自动切换到户型图
-   * 2. 如何户型图已经展示，滑动时关闭户型图
-   */
-  private handlePanGesture: EventCallback['panGesture'] = async ({ latitude, longitude }, isFinal) => {
+  /** 户型图展示中，转动三维模型，结束时应该自动修复模型状态 */
+  private handleWantsPanGesture: EventCallback['wantsPanGesture'] = (_, isFinal) => {
     if (this.five.getCurrentState().mode !== 'Floorplan') return
     if (this.configs.autoShowEnable === false) return
-    // 如果操作结束后，户型图还在展示中，初始化模型状态
-    if (isFinal && this.visible) return this.five.setState(this.showState, true)
 
-    // 满足消失的条件：
-    // 水平旋转角大于正负 5 度 || 俯仰角度大于 5 度
-    const latitudeHide = Math.abs(latitude - Math.PI / 2) > (5 * Math.PI) / 180
-    const longitudeHide = longitude > 5 * (Math.PI / 180) && longitude < 355 * (Math.PI / 180)
-    const canHide = latitudeHide || longitudeHide
-    if (this.visible && canHide) return this.hide({ isAutoHide: true })
-    if (this.five.camera.fov / FIVE_CAMERA_DEFAULT_FOV < 0.8) return
-
-    // 户型图展示条件：
-    // 水平旋转角正负 30 度 && 俯仰角度小于 10 度
-    const latitudeVisible = Math.abs(latitude - Math.PI / 2) < (10 * Math.PI) / 180
-    const longitudeVisible = longitude < 30 * (Math.PI / 180) || longitude > 330 * (Math.PI / 180)
-    if (isFinal && !this.visible && latitudeVisible && longitudeVisible) {
-      // 当手指离开时需要等惯性结束之后在进行判断
-      const handleInteriaPan = async (any: any, isFinal: boolean) => {
-        if (!isFinal) return
-        this.five.off('interiaPan', handleInteriaPan)
-        await this.show({ isAutoShow: true })
-      }
-      this.five.on('interiaPan', handleInteriaPan)
-      return
+    if (isFinal && this.visible) {
+      this.five.updateCamera(this.showState, 0)
+      // 禁用掉 isFinal 的 panGesture 行为
+      // 因为 panGesture 中包含对相机的处理，会跟回调事件中的处理逻辑冲突
+      // 此行为也会禁用 pan 结束后的惯性处理
+      return false
     }
+  }
+
+  /** 惯性结束后，判断能否自动展示户型图 */
+  private handleInteriaPan = (_: any, isFinal: boolean) => {
+    if (!isFinal) return
+    if (this.configs.autoShowEnable === false) return
+    const fiveCurrentState = this.five.getCurrentState()
+    if (fiveCurrentState.mode !== 'Floorplan') return
+    if (this.visible) return
+    if (shouldFloorplanShowWithPose(fiveCurrentState)) {
+      this.show({ isAutoShow: true })
+    }
+  }
+
+  /** cameraUpdate 时判断户型图是否应该自动隐藏 */
+  private handleCameraUpdate = () => {
+    if (!this.visible) return
+    const fiveCurrentState = this.five.getCurrentState()
+    if (shouldFloorplanHideWithPose(fiveCurrentState)) this.hide()
   }
 
   private render(duration?: number) {
     if (!this.container || !this.floorplanData) return
     if (this.size.width === 0) return
-    const { northDesc, hoverEnable, cameraImageUrl, getLabelElement, roomLabelsEnable, compassEnable, ruleLabelsEnable } =
-      this.configs
+    const {
+      northDesc,
+      hoverEnable,
+      cameraImageUrl,
+      getLabelElement,
+      roomLabelsEnable,
+      compassEnable,
+      ruleLabelsEnable,
+    } = this.configs
     const props = {
       cameraImageUrl,
       getLabelElement,

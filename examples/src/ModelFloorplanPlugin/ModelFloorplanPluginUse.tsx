@@ -37,9 +37,9 @@ const ModelFloorplanPluginUse = (props: ModelFloorplanPluginUsePropTypes) => {
     }, [floorplanServerData])
 
     useFiveEventCallback("initAnimationEnded", () => {
-        if (fiveState.mode === Five.Mode.Floorplan) {
-            five.plugins.modelFloorplanPlugin.show()
-        }
+        // if (fiveState.mode === Five.Mode.Floorplan) {
+        //     five.plugins.modelFloorplanPlugin.show()
+        // }
     }, [fiveState.mode])
 
     if (fiveModelReadyState !== 'Loaded') return null

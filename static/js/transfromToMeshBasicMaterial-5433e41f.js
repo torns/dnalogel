@@ -1,0 +1,1 @@
+import{aq as n}from"./vendor-b2bf1e8d.js";function m(t,s){t.traverse(r=>{var a;if(r.type==="Mesh"){const e=r,i=Object.assign({map:e.material.map||{}},s);e.material=new n(i),e.renderOrder=1,((a=r.parent)===null||a===void 0?void 0:a.type)==="Mesh"&&(r.renderOrder=r.parent.renderOrder+1)}})}export{m as t};
